@@ -1,126 +1,155 @@
 import streamlit as st
 import time
 
-# --- SYSTEM INITIALIZATION ---
+# --- ADVANCED HUD CONFIGURATION ---
 st.set_page_config(page_title="THERMO-CHRONOS", layout="wide", initial_sidebar_state="collapsed")
 
-# --- CYBERPUNK CSS CORE ---
+# --- THE "WAR ROOM" STYLING ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@300&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap');
 
-    :root {
-        --neon-cyan: #00f2ff;
-        --neon-magenta: #ff0055;
-        --deep-void: #030509;
-    }
-
-    /* Cinematic Background */
+    /* Background Setup */
     .stApp {
-        background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+        background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), 
                     url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80');
         background-size: cover;
-        color: white;
-        font-family: 'JetBrains Mono', monospace;
+        color: #e0fbfc;
+        font-family: 'Share Tech Mono', monospace;
     }
 
-    /* Glitch Title */
+    /* HUD Brackets (The Corners) */
+    .hud-corner {
+        position: fixed;
+        width: 30px;
+        height: 30px;
+        border: 2px solid #00f2ff;
+        z-index: 999;
+    }
+    .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+    .bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+    .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+    /* Main Title Section */
+    .hero-container {
+        text-align: center;
+        padding-top: 5vh;
+    }
     .glitch-header {
         font-family: 'Orbitron', sans-serif;
-        font-size: 5rem;
-        font-weight: 900;
+        font-size: 5.5rem;
+        letter-spacing: 15px;
+        color: #fff;
+        text-shadow: 3px 3px #ff0055, -3px -3px #00f2ff;
+        margin-bottom: 0px;
+    }
+    .mission-subtitle {
+        font-size: 1.2rem;
+        letter-spacing: 5px;
+        color: #00f2ff;
         text-transform: uppercase;
-        text-align: center;
-        color: white;
-        text-shadow: 2px 2px var(--neon-magenta), -2px -2px var(--neon-cyan);
-        animation: glitch 1s linear infinite;
+        border-bottom: 1px solid #00f2ff;
+        display: inline-block;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
     }
 
-    @keyframes glitch {
-        2%, 64% { transform: translate(2px,0) skew(0deg); }
-        4%, 60% { transform: translate(-2px,0) skew(0deg); }
-        62% { transform: translate(0,0) skew(5deg); }
-    }
-
-    /* Crystal Button */
+    /* Node Selection Styling */
     .stButton>button {
-        background: rgba(0, 242, 255, 0.1) !important;
-        color: var(--neon-cyan) !important;
-        border: 2px solid var(--neon-cyan) !important;
+        background: rgba(0, 242, 255, 0.05) !important;
+        color: #00f2ff !important;
+        border: 1px solid rgba(0, 242, 255, 0.3) !important;
         font-family: 'Orbitron' !important;
-        padding: 20px 80px !important;
-        font-size: 1.5rem !important;
-        border-radius: 0px !important;
-        transition: 0.5s !important;
-        backdrop-filter: blur(10px);
-        display: block;
-        margin: auto;
+        width: 100% !important;
+        height: 80px !important;
+        transition: 0.4s !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
-
     .stButton>button:hover {
-        background: var(--neon-cyan) !important;
-        color: black !important;
-        box-shadow: 0 0 50px var(--neon-cyan);
+        background: rgba(0, 242, 255, 0.2) !important;
+        border: 1px solid #00f2ff !important;
+        box-shadow: 0 0 20px #00f2ff;
+        transform: scale(1.02);
     }
 
-    /* Loading Ring */
-    .loader {
-        border: 4px solid transparent;
-        border-top: 4px solid var(--neon-cyan);
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        animation: spin 1s linear infinite;
-        margin: auto;
-    }
-
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    /* Hide redundant elements */
+    header, footer {visibility: hidden;}
     </style>
+
+    <!-- Visual HUD Overlays -->
+    <div class="hud-corner top-left"></div>
+    <div class="hud-corner top-right"></div>
+    <div class="hud-corner bottom-left"></div>
+    <div class="hud-corner bottom-right"></div>
 """, unsafe_allow_html=True)
 
-# --- SESSION STATE FOR NAVIGATION ---
+# --- NAVIGATION LOGIC ---
 if 'scene' not in st.session_state:
     st.session_state.scene = 'gateway'
 
-# --- 1. THE GATEWAY (TRANG BÌA) ---
+# --- 1. THE GATEWAY (LANDING) ---
 if st.session_state.scene == 'gateway':
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    st.markdown('<h1 class="glitch-header">THERMO<br>CHRONOS</h1>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; letter-spacing:10px; color:#555;'>THE LAST LEGACY | v3.0.4</p>", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="hero-container">
+            <h1 class="glitch-header">THERMO-CHRONOS</h1>
+            <p class="mission-subtitle">Planetary Thermal Archive & Historical Telemetry</p>
+            <p style="opacity: 0.6; max-width: 600px; margin: auto;">
+                Warning: You are accessing the Last Legacy data core. This interface visualizes 
+                global climate anomalies from 1750 to present. Proceed with caution.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("<br><br>", unsafe_allow_html=True)
     
-    if st.button("START MISSION"):
-        st.session_state.scene = 'loading'
-        st.rerun()
+    _, col_btn, _ = st.columns([1.5, 1, 1.5])
+    with col_btn:
+        if st.button("INITIALIZE MISSION"):
+            st.session_state.scene = 'world_map'
+            st.rerun()
 
-# --- 2. THE LOADING SEQUENCE ---
-elif st.session_state.scene == 'loading':
-    st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
-    st.markdown('<div class="loader"></div>', unsafe_allow_html=True)
-    placeholder = st.empty()
-    
-    codes = ["INITIALIZING QUANTUM CORE...", "FETCHING HISTORICAL TELEMETRY...", "MAPPING THERMAL GRIDS...", "READY TO JUMP."]
-    for code in codes:
-        placeholder.markdown(f"<p style='text-align:center; color:cyan; font-family:monospace;'>{code}</p>", unsafe_allow_html=True)
-        time.sleep(0.8)
-    
-    st.session_state.scene = 'world_map'
-    st.rerun()
-
-# --- 3. THE WORLD MAP SELECTION (GIAO DIỆN CHỌN VÙNG) ---
+# --- 2. THE COMMAND CENTER (SELECTION) ---
 elif st.session_state.scene == 'world_map':
-    st.markdown("<h2 style='font-family:Orbitron; color:cyan;'>SELECT TARGET ZONE</h2>", unsafe_allow_html=True)
-    
-    # Ở đây chúng ta sẽ chèn bản đồ 3D bằng pydeck hoặc plotly
-    st.info("MISSION: Hover over continents to detect anomalies. Target: Global Temperature Datasets.")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("ASIA SECTOR"): pass
-    with col2:
-        if st.button("EUROPE SECTOR"): pass
-    with col3:
-        if st.button("BACK TO VOID"):
+    st.markdown("""
+        <div style="text-align: center;">
+            <h2 style="font-family:Orbitron; letter-spacing: 5px;">TACTICAL ZONE SELECTION</h2>
+            <p style="color:#ff0055;">[ SELECT A CONTINENTAL SECTOR TO DECODE DATA ]</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 3x2 Grid for All Continents
+    m1, m2, m3 = st.columns(3)
+    m4, m5, m6 = st.columns(3)
+
+    with m1: 
+        if st.button("NORTH AMERICA\n[Sector 01]"): st.session_state.target = "NA"
+    with m2: 
+        if st.button("EUROPE\n[Sector 02]"): st.session_state.target = "EU"
+    with m3: 
+        if st.button("ASIA\n[Sector 03]"): st.session_state.target = "AS"
+    with m4: 
+        if st.button("SOUTH AMERICA\n[Sector 04]"): st.session_state.target = "SA"
+    with m5: 
+        if st.button("AFRICA\n[Sector 05]"): st.session_state.target = "AF"
+    with m6: 
+        if st.button("OCEANIA\n[Sector 06]"): st.session_state.target = "OC"
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    _, back_col, _ = st.columns([2, 1, 2])
+    with back_col:
+        if st.button("ABORT MISSION"):
             st.session_state.scene = 'gateway'
             st.rerun()
+
+    # Sidebar HUD Data
+    with st.sidebar:
+        st.markdown("### SYSTEM STATUS")
+        st.write("CORE: ACTIVE")
+        st.write("ENCRYPTION: RSA-256")
+        st.progress(85)
+        st.markdown("---")
+        st.info("Select a sector to view the survival index and temperature fluctuations.")
