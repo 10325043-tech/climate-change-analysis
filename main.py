@@ -1,266 +1,238 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+import numpy as np
 
-# --- ADVANCED SYSTEM ARCHITECTURE ---
+# --- ADVANCED HUD CONFIGURATION ---
 st.set_page_config(
-    page_title="NEURAL CLIMATE TERMINAL v3.0",
-    page_icon="🌌",
+    page_title="CORE_TERMINAL_V4",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- THE "WOW" ENGINE (CSS & JAVASCRIPT) ---
+# --- THE "HYPER-DRIVE" STYLING (CSS & JS) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Quantico:wght@400;700&family=JetBrains+Mono:wght@100&display=swap');
 
     :root {
-        --glow-cyan: #00ffff;
-        --glow-magenta: #ff00ff;
-        --void-black: #030305;
-        --matrix-green: #00ff41;
+        --core-neon: #00f2ff;
+        --core-danger: #ff0055;
+        --bg-void: #02040a;
     }
 
-    /* Cinematic Reset */
+    /* GLOBAL VOID */
     html, body, [data-testid="stAppViewContainer"] {
-        background-color: var(--void-black);
-        color: #fff;
-        font-family: 'Space Grotesk', sans-serif;
+        background-color: var(--bg-void);
+        color: #e0e0e0;
+        font-family: 'Quantico', sans-serif;
+        cursor: crosshair;
     }
 
-    /* HYPER-INTERACTIVE BACKGROUND (CSS Animation) */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #0a1a2f 0%, #030305 100%);
-    }
-    .stApp::before {
-        content: "";
+    /* SCANLINE EFFECT */
+    .stApp::after {
+        content: " ";
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: url('https://www.transparenttextures.com/patterns/stardust.png');
-        opacity: 0.2;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 4px, 3px 100%;
         pointer-events: none;
+        z-index: 9999;
     }
 
-    /* THE GLITCH HERO UNIT */
-    .hero-container {
-        height: 100vh;
+    /* LANDING PAGE - THE REACTOR CORE */
+    .landing-wrapper {
+        height: 80vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        perspective: 1000px;
     }
 
-    .title-h1 {
-        font-family: 'Syncopate', sans-serif;
-        font-size: 8vw;
-        font-weight: 700;
-        letter-spacing: -2px;
-        line-height: 0.8;
-        background: linear-gradient(to bottom, #fff 30%, var(--glow-cyan) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 0 40px rgba(0, 255, 255, 0.4));
-        margin: 0;
-        animation: float 6s ease-in-out infinite;
+    .reactor-core {
+        width: 150px;
+        height: 150px;
+        border: 4px solid var(--core-neon);
+        border-radius: 50%;
+        box-shadow: 0 0 50px var(--core-neon), inset 0 0 30px var(--core-neon);
+        animation: pulse 2s infinite alternate;
+        margin-bottom: 40px;
     }
 
-    @keyframes float {
-        0%, 100% { transform: translateY(0) rotateX(0deg); }
-        50% { transform: translateY(-20px) rotateX(5deg); }
+    @keyframes pulse {
+        from { transform: scale(1); opacity: 0.8; }
+        to { transform: scale(1.1); opacity: 1; box-shadow: 0 0 80px var(--core-neon); }
     }
 
-    /* CYBERPUNK BUTTONS */
+    .glitch-title {
+        font-family: 'Audiowide', cursive;
+        font-size: 6rem;
+        text-transform: uppercase;
+        color: white;
+        text-shadow: 4px 4px var(--core-danger);
+        letter-spacing: 20px;
+    }
+
+    /* CYBER BUTTON */
     .stButton>button {
-        position: relative;
         background: transparent !important;
-        border: 1px solid var(--glow-cyan) !important;
-        color: var(--glow-cyan) !important;
-        font-family: 'Syncopate', sans-serif !important;
-        padding: 1.5rem 3rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 5px !important;
-        overflow: hidden;
-        transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1) !important;
-        border-radius: 0 !important;
+        color: var(--core-neon) !important;
+        border: 2px solid var(--core-neon) !important;
+        font-family: 'Audiowide' !important;
+        padding: 20px 60px !important;
+        font-size: 1.5rem !important;
+        transition: 0.3s !important;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
     }
 
     .stButton>button:hover {
-        background: var(--glow-cyan) !important;
+        background: var(--core-neon) !important;
         color: black !important;
-        box-shadow: 0 0 50px var(--glow-cyan), inset 0 0 20px rgba(0,0,0,0.5);
+        box-shadow: 0 0 40px var(--core-neon) !important;
+        transform: skewX(-5deg);
     }
 
-    .stButton>button::after {
-        content: "";
-        position: absolute;
-        top: -50%; left: -50%; width: 200%; height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-        transform: rotate(45deg);
-        transition: 0.6s;
-    }
-
-    .stButton>button:hover::after {
-        left: 100%;
-    }
-
-    /* DATA CARD HUD */
-    .hud-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(0, 255, 255, 0.1);
-        border-left: 5px solid var(--glow-cyan);
+    /* DATA TILES */
+    .metric-card {
+        background: rgba(0, 242, 255, 0.05);
+        border: 1px solid rgba(0, 242, 255, 0.2);
         padding: 20px;
-        backdrop-filter: blur(10px);
-        margin-bottom: 15px;
+        position: relative;
+        overflow: hidden;
     }
-
-    /* STREAMLIT ELEMENT OVERRIDES */
-    .stSelectbox, .stSlider, .stMultiSelect {
-        background: rgba(0,0,0,0.4);
-        border-radius: 0px !important;
+    .metric-card::before {
+        content: "LIVE_FEED";
+        position: absolute;
+        top: 5px; right: 5px;
+        font-size: 0.5rem;
+        color: var(--core-neon);
     }
 
     header, footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
-# --- QUANTUM DATA ENGINE ---
-if 'flow_state' not in st.session_state: st.session_state.flow_state = 'init'
+# --- DATA STREAMING ENGINE ---
+if 'system_auth' not in st.session_state: st.session_state.system_auth = False
 
 @st.cache_data
-def fetch_master_data():
+def load_climate_data():
     try:
         df = pd.read_csv("GlobalLandTemperaturesByCountry.csv")
         df['dt'] = pd.to_datetime(df['dt'])
         df['Year'] = df['dt'].dt.year
         return df.dropna(subset=['AverageTemperature'])
     except:
-        return pd.DataFrame()
+        # Mock data if file is missing for demonstration
+        return pd.DataFrame({'Country': ['Vietnam'], 'Year': [2020], 'AverageTemperature': [27.5]})
 
-master_df = fetch_master_data()
+df = load_climate_data()
 
-# Robust Continent Logic
-CONTINENT_DB = {
-    "EUROPE": ["Albania", "Andorra", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", "Montenegro", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Ukraine", "United Kingdom"],
-    "ASIA": ["Afghanistan", "Armenia", "Azerbaijan", "Bahrain", "Bangladesh", "Bhutan", "Brunei", "Cambodia", "China", "Georgia", "India", "Indonesia", "Iran", "Iraq", "Israel", "Japan", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Laos", "Lebanon", "Malaysia", "Maldives", "Mongolia", "Myanmar", "Nepal", "North Korea", "Oman", "Pakistan", "Palestine", "Philippines", "Qatar", "Saudi Arabia", "Singapore", "South Korea", "Sri Lanka", "Syria", "Taiwan", "Tajikistan", "Thailand", "Timor-Leste", "Turkey", "Turkmenistan", "United Arab Emirates", "Uzbekistan", "Vietnam", "Yemen"],
-    "AFRICA": ["Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Cape Verde", "Central African Republic", "Chad", "Comoros", "Congo", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan", "Swaziland", "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"],
-    "AMERICAS": ["Antigua and Barbuda", "Argentina", "Bahamas", "Barbados", "Belize", "Bolivia", "Brazil", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Grenada", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Panama", "Paraguay", "Peru", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Suriname", "Trinidad and Tobago", "United States", "Uruguay", "Venezuela"],
-    "OCEANIA": ["Australia", "Fiji", "Kiribati", "Marshall Islands", "Micronesia", "Nauru", "New Zealand", "Palau", "Papua New Guinea", "Samoa", "Solomon Islands", "Tonga", "Tuvalu", "Vanuatu"]
+# DYNAMIC REGION MAPPING
+REGIONS = {
+    "NORTH_AMERICA": ["Canada", "Mexico", "United States"],
+    "EURO_ZONE": ["France", "Germany", "Italy", "United Kingdom", "Russia", "Spain", "Sweden"],
+    "ASIA_PACIFIC": ["China", "India", "Japan", "Vietnam", "Thailand", "South Korea", "Indonesia"],
+    "SOUTHERN_HEM": ["Brazil", "Argentina", "Australia", "South Africa", "Chile"]
 }
 
-# --- SCREEN 1: THE NEXUS (LANDING) ---
-if st.session_state.flow_state == 'init':
+# --- STAGE 1: THE CORE INITIALIZATION ---
+if not st.session_state.system_auth:
     st.markdown("""
-        <div class="hero-container">
-            <div style="font-size: 0.7rem; letter-spacing: 25px; color: var(--glow-cyan); margin-bottom: 30px; opacity: 0.6;">
-                ESTABLISHING NEURAL LINK...
-            </div>
-            <h1 class="title-h1">NEURAL<br>CLIMATE</h1>
-            <div style="margin-top: 40px; border-left: 2px solid var(--glow-cyan); padding-left: 20px;">
-                <p style="color: #666; font-family: 'Space Grotesk'; letter-spacing: 3px; font-size: 0.9rem;">
-                    GLOBAL THERMAL ANALYTICS SYSTEM <br>
-                    VERSION 3.0.4 [BUILD_QUANTUM]
-                </p>
-            </div>
+        <div class="landing-wrapper">
+            <div class="reactor-core"></div>
+            <h1 class="glitch-title">HYPER<br>DATA</h1>
+            <p style="letter-spacing: 10px; color: #555;">[ AUTHENTICATION REQUIRED ]</p>
         </div>
     """, unsafe_allow_html=True)
     
-    _, btn_col, _ = st.columns([1, 0.6, 1])
-    with btn_col:
-        if st.button("EXECUTE SYSTEM"):
-            st.session_state.flow_state = 'active'
+    _, col_btn, _ = st.columns([1, 1, 1])
+    with col_btn:
+        if st.button("BYPASS FIREWALL"):
+            st.session_state.system_auth = True
             st.rerun()
 
-# --- SCREEN 2: THE WAR ROOM (DASHBOARD) ---
-elif st.session_state.flow_state == 'active':
-    # Top HUD Bar
-    h1, h2 = st.columns([4, 1])
-    with h1:
-        st.markdown(f"<h2 style='font-family:Syncopate; letter-spacing:10px; color:var(--glow-cyan);'>NEURAL_WAR_ROOM</h2>", unsafe_allow_html=True)
-    with h2:
-        if st.button("TERMINATE"):
-            st.session_state.flow_state = 'init'
+# --- STAGE 2: THE COMMAND INTERFACE ---
+else:
+    # Sidebar-less Navigation
+    c1, c2, c3 = st.columns([1, 4, 1])
+    with c1:
+        st.markdown("<h3 style='color:var(--core-neon); font-family:Audiowide;'>NET_STATUS: ONLINE</h3>", unsafe_allow_html=True)
+    with c3:
+        if st.button("DISCONNECT"):
+            st.session_state.system_auth = False
             st.rerun()
 
-    # Main Command Interface
-    c_left, c_mid, c_right = st.columns([1, 2.5, 1])
+    st.markdown("---")
 
-    with c_left:
-        st.markdown("### COMMANDS")
-        with st.container():
-            st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-            active_sector = st.radio("SECTOR TARGETING", list(CONTINENT_DB.keys()))
-            target_countries = CONTINENT_DB[active_sector]
-            st.markdown("</div>", unsafe_allow_html=True)
+    # GRID LAYOUT
+    col_ctrl, col_main = st.columns([1, 3])
 
-            st.markdown("<div class='hud-card'>", unsafe_allow_html=True)
-            selected_nodes = st.multiselect("ISOLATE NODES", target_countries, default=target_countries[:1])
-            time_frame = st.slider("TEMPORAL WINDOW", 1850, 2013, (1980, 2013))
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    with c_mid:
-        # Data Filtering
-        mask = (master_df['Country'].isin(target_countries)) & \
-               (master_df['Year'] >= time_frame[0]) & \
-               (master_df['Year'] <= time_frame[1])
-        df_active = master_df[mask]
+    with col_ctrl:
+        st.markdown("<div class='metric-card'>", unsafe_allow_html=True)
+        sector = st.selectbox("SELECT SECTOR", list(REGIONS.keys()))
+        subset = df[df['Country'].isin(REGIONS[sector])]
         
-        map_stats = df_active.groupby('Country')['AverageTemperature'].mean().reset_index()
+        target_nodes = st.multiselect("ISOLATE NODES", REGIONS[sector], default=REGIONS[sector][:2])
+        y_min, y_max = st.slider("TIMELINE", 1850, 2013, (1990, 2013))
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # 3D GLOBE WITH HUD OVERLAY
-        fig_globe = px.choropleth(
-            map_stats, locations="Country", locationmode='country names',
-            color="AverageTemperature", color_continuous_scale="Plasma",
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Real-time Metrics
+        recent_avg = subset[subset['Year'] == y_max]['AverageTemperature'].mean()
+        st.markdown(f"""
+            <div class='metric-card' style='border-color: var(--core-danger);'>
+                <p style='color:var(--core-danger);'>SECTOR_HEAT_INDEX</p>
+                <h2 style='color:white;'>{recent_avg:.2f}°C</h2>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col_main:
+        # DATA VIZ - THE HEATMATRIX (Better than a Globe)
+        viz_data = subset[(subset['Year'] >= y_min) & (subset['Year'] <= y_max)]
+        
+        # Heatmap over time for countries
+        pivot_data = viz_data.groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
+        
+        fig = px.density_heatmap(
+            pivot_data, x="Year", y="Country", z="AverageTemperature",
+            color_continuous_scale="Viridis",
+            title="THERMAL FREQUENCY MATRIX",
             template="plotly_dark"
         )
-        fig_globe.update_geos(
-            projection_type="orthographic",
-            showocean=True, oceancolor="#030305",
-            showcountries=True, countrycolor="rgba(0, 255, 255, 0.3)",
-            bgcolor='rgba(0,0,0,0)'
-        )
-        fig_globe.update_layout(
-            height=750, margin={"r":0,"t":0,"l":0,"b":0},
+        fig.update_layout(
+            font_family="JetBrains Mono",
             paper_bgcolor='rgba(0,0,0,0)',
-            coloraxis_colorbar=dict(
-                title="TEMP", thickness=15, len=0.4, 
-                bgcolor="rgba(0,0,0,0.5)", tickfont=dict(color="cyan")
+            plot_bgcolor='rgba(0,0,0,0)',
+            height=500
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # WAVEFORM ANALYSIS
+        if target_nodes:
+            line_data = pivot_data[pivot_data['Country'].isin(target_nodes)]
+            fig_line = px.line(
+                line_data, x="Year", y="AverageTemperature", color="Country",
+                line_shape="spline", render_mode="svg"
             )
-        )
-        st.plotly_chart(fig_globe, use_container_width=True)
+            fig_line.update_traces(line=dict(width=4))
+            fig_line.update_layout(
+                title="WAVEFORM TELEMETRY",
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                xaxis=dict(showgrid=False),
+                yaxis=dict(gridcolor="rgba(0, 242, 255, 0.1)")
+            )
+            st.plotly_chart(fig_line, use_container_width=True)
 
-    with c_right:
-        st.markdown("### TELEMETRY")
-        peaks = map_stats.sort_values('AverageTemperature', ascending=False).head(5)
-        for i, row in peaks.iterrows():
-            st.markdown(f"""
-                <div class="hud-card" style="border-left-color: var(--glow-magenta);">
-                    <small style="color: var(--glow-magenta); font-size: 0.6rem;">NODE_0{i}_CRITICAL</small>
-                    <div style="font-size: 1.2rem; font-weight: 700;">{row['Country']}</div>
-                    <div style="font-size: 1.5rem; color: #fff;">{row['AverageTemperature']:.2f}°C</div>
-                </div>
-            """, unsafe_allow_html=True)
-
-    # Bottom Stream
-    st.markdown("---")
-    if selected_nodes:
-        st.markdown("### SIGNAL WAVEFORM ANALYSIS")
-        df_line = df_active[df_active['Country'].isin(selected_nodes)].groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
-        fig_line = px.line(df_line, x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
-        fig_line.update_traces(line=dict(width=3))
-        fig_line.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)', 
-            plot_bgcolor='rgba(0,0,0,0.1)',
-            xaxis=dict(showgrid=False, color="cyan"),
-            yaxis=dict(gridcolor="rgba(255,255,255,0.05)", color="cyan")
-        )
-        st.plotly_chart(fig_line, use_container_width=True)
-
-# Footer Info
-st.markdown("""
-    <div style="position: fixed; bottom: 10px; right: 10px; font-size: 0.6rem; color: #333; letter-spacing: 5px;">
-        SECURED BY NEURAL-GRID | ENCRYPTED | 2026
-    </div>
-""", unsafe_allow_html=True)
+    # FOOTER DECRYPTOR
+    st.markdown("""
+        <div style="font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #333; margin-top: 50px;">
+            >> DECRYPTING_LOCAL_SENSORS... [SUCCESS] <br>
+            >> LOADING_CORE_KERNEL_V4.0.1... [ACTIVE] <br>
+            >> SYSTEM_STATUS: NO_ANOMALIES_DETECTED
+        </div>
+    """, unsafe_allow_html=True)
