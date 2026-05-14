@@ -1,29 +1,38 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
-# 1. Page Configuration
-st.set_page_config(page_title="Global Climate Crisis Tracker", page_icon="🌡️", layout="wide")
+st.set_page_config(page_title="Climate Quest: Earth 2026", layout="wide", initial_sidebar_state="collapsed")
 
-# Custom CSS for a professional "Crisis" look
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; }
-    h1 { color: #ff4b4b; text-align: center; font-weight: 800; font-size: 3.5rem; }
-    .stAlert { background-color: #262730; border: 1px solid #ff4b4b; }
+    .stApp {
+        background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                    url('https://img.freepik.com/free-vector/pixel-art-mystical-night-sky-background_52683-119106.jpg');
+        background-size: cover;
+    }
+    .start-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh;
+    }
+    h1 { color: #00FF00 !important; font-family: 'Courier New', monospace !important; text-shadow: 3px 3px #FF0000; font-size: 4rem !important; }
+    h2, h3 { color: #00FF00 !important; font-family: 'Courier New', monospace !important; }
+    .stButton>button {
+        background-color: #ff4b4b; color: white; border-radius: 0px;
+        padding: 20px 60px; font-size: 28px; font-weight: bold;
+        border: 4px solid #fff; box-shadow: 0 0 25px #ff4b4b;
+        font-family: 'Courier New', monospace;
+    }
+    .stButton>button:hover { background-color: #00FF00; color: black; box-shadow: 0 0 50px #00FF00; border-color: #000; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Hero Section
-st.title("🌡️ THE GLOBAL CLIMATE CRISIS")
-st.markdown("<h4 style='text-align: center; color: #9da0a4;'>Visualizing Earth Surface Temperature Anomalies (1750 - 2013)</h4>", unsafe_allow_html=True)
-st.write("---")
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+if 'continent' not in st.session_state:
+    st.session_state.continent = None
 
-# 3. Data Loading Logic
 @st.cache_data
 def load_data():
-    # Make sure this filename matches your uploaded file exactly!
     df = pd.read_csv("GlobalLandTemperaturesByCountry.csv")
     df['dt'] = pd.to_datetime(df['dt'])
     df['Year'] = df['dt'].dt.year
@@ -31,76 +40,97 @@ def load_data():
     return df
 
 try:
-    df = load_data()
+    data = load_data()
+except:
+    data = pd.DataFrame()
 
-    # 4. Sidebar Control Panel
-    st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2600/2600282.png", width=100)
-    st.sidebar.header("🕹️ CONTROL PANEL")
-    st.sidebar.markdown("Filter the dataset to see historical changes.")
+if st.session_state.page == 'home':
+    st.markdown('<div class="start-container">', unsafe_allow_html=True)
+    st.markdown("<h1>CLIMATE QUEST</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: white !important;'>MISSION: ANALYZE PLANETARY WARMING</h3>", unsafe_allow_html=True)
+    if st.button("🚀 START MISSION"):
+        st.session_state.page = 'selection'
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+elif st.session_state.page == 'selection':
+    st.markdown("<h2 style='text-align: center;'>SELECT SECTOR</h2>", unsafe_allow_html=True)
+    st.write("---")
     
-    year_range = st.sidebar.slider("Select Year Range", 
-                                  int(df['Year'].min()), 
-                                  int(df['Year'].max()), 
-                                  (1900, 2013))
+    col1, col2, col3, col4 = st.columns(4)
     
-    mask = (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])
-    selected_df = df.loc[mask]
-
-    # 5. Top Metrics - Immediate Impact
-    col_a, col_b, col_c = st.columns(3)
-    global_avg = selected_df['AverageTemperature'].mean()
-    max_temp = selected_df['AverageTemperature'].max()
-    
-    col_a.metric("Avg Global Temp", f"{global_avg:.2f}°C", "Rising")
-    col_b.metric("Max Recorded Temp", f"{max_temp:.2f}°C", "Critical", delta_color="inverse")
-    col_c.metric("Data Points Analyzed", f"{len(selected_df):,}", "Real-time")
-
-    # 6. Main Visualizations
-    col1, col2 = st.columns([2, 1])
-
     with col1:
-        st.subheader("🗺️ Global Heat Exposure Map")
-        map_data = selected_df.groupby('Country')['AverageTemperature'].mean().reset_index()
-        
-        fig_map = px.choropleth(map_data, 
-                                locations="Country", 
-                                locationmode='country names',
-                                color="AverageTemperature",
-                                hover_name="Country",
-                                color_continuous_scale="Reds") # Dramatic red scale
-        fig_map.update_layout(margin={"r":0,"t":20,"l":0,"b":0}, height=500, template="plotly_dark")
-        st.plotly_chart(fig_map, use_container_width=True)
+        st.image("https://cdn-icons-png.flaticon.com/512/2483/2483030.png", width=100)
+        if st.button("EUROPE"):
+            st.session_state.continent = "Europe"
+            st.session_state.page = 'dashboard'
+            st.rerun()
 
     with col2:
-        st.subheader("🔥 Top 10 Hottest Nations")
-        top_10 = map_data.sort_values('AverageTemperature', ascending=False).head(10)
-        fig_bar = px.bar(top_10, x='AverageTemperature', y='Country', 
-                         orientation='h', 
-                         color='AverageTemperature',
-                         color_continuous_scale="OrRd")
-        fig_bar.update_layout(yaxis={'categoryorder':'total ascending'}, template="plotly_dark")
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.image("https://cdn-icons-png.flaticon.com/512/2483/2483011.png", width=100)
+        if st.button("ASIA"):
+            st.session_state.continent = "Asia"
+            st.session_state.page = 'dashboard'
+            st.rerun()
 
-    # 7. Comparison Section
-    st.write("---")
-    st.subheader("📈 Multi-Country Temperature Trends")
-    all_countries = sorted(df['Country'].unique())
-    selected_countries = st.multiselect("Select nations to compare impact:", 
-                                        all_countries, 
-                                        default=["Vietnam", "United States", "Norway"])
+    with col3:
+        st.image("https://cdn-icons-png.flaticon.com/512/2483/2483023.png", width=100)
+        if st.button("AMERICAS"):
+            st.session_state.continent = "Americas"
+            st.session_state.page = 'dashboard'
+            st.rerun()
+
+    with col4:
+        st.image("https://cdn-icons-png.flaticon.com/512/2483/2483018.png", width=100)
+        if st.button("AFRICA"):
+            st.session_state.continent = "Africa"
+            st.session_state.page = 'dashboard'
+            st.rerun()
+            
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("⬅️ ABORT MISSION"):
+        st.session_state.page = 'home'
+        st.rerun()
+
+elif st.session_state.page == 'dashboard':
+    st.sidebar.header("SYSTEM MENU")
+    if st.sidebar.button("🎮 SECTOR SELECT"):
+        st.session_state.page = 'selection'
+        st.rerun()
+    if st.sidebar.button("🏠 MAIN MENU"):
+        st.session_state.page = 'home'
+        st.rerun()
+
+    st.markdown(f"<h2>DATA FEED: {st.session_state.continent.upper()}</h2>", unsafe_allow_html=True)
     
-    if selected_countries:
-        trend_df = selected_df[selected_df['Country'].isin(selected_countries)]
-        trend_year = trend_df.groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
+    if data.empty:
+        st.error("DATABASE ERROR: GlobalLandTemperaturesByCountry.csv not found.")
+    else:
+        year_range = st.slider("CHRONOLOGICAL RANGE", 1850, 2013, (1950, 2013))
+        filtered_df = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1])]
         
-        fig_line = px.line(trend_year, x="Year", y="AverageTemperature", color="Country",
-                           line_shape="spline", render_mode="svg")
-        fig_line.update_layout(hover_mode="x unified", template="plotly_dark")
+        c1, c2 = st.columns([2, 1])
+        
+        with c1:
+            st.subheader("THERMAL ANOMALY MAP")
+            map_data = filtered_df.groupby('Country')['AverageTemperature'].mean().reset_index()
+            fig_map = px.choropleth(map_data, locations="Country", locationmode='country names',
+                                    color="AverageTemperature", color_continuous_scale="Reds", template="plotly_dark")
+            st.plotly_chart(fig_map, use_container_width=True)
+            
+        with c2:
+            st.subheader("CRITICAL SECTORS")
+            top_10 = map_data.sort_values('AverageTemperature', ascending=False).head(10)
+            fig_bar = px.bar(top_10, x='AverageTemperature', y='Country', orientation='h', 
+                             color='AverageTemperature', color_continuous_scale="Reds", template="plotly_dark")
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+        st.write("---")
+        st.subheader("HISTORICAL TEMPERATURE TRAJECTORY")
+        countries = st.multiselect("SELECT NATIONS", data['Country'].unique(), default=["Vietnam", "Norway"])
+        trend_df = filtered_df[filtered_df['Country'].isin(countries)]
+        trend_year = trend_df.groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
+        fig_line = px.line(trend_year, x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
         st.plotly_chart(fig_line, use_container_width=True)
 
-    # 8. Final Call to Action
-    st.error("🚨 **CRITICAL FINDING:** Data confirms an undeniable upward trajectory in surface temperatures. Immediate global intervention is required.")
-
-except Exception as e:
-    st.warning("⚠️ **Awaiting Data...** Please ensure 'GlobalLandTemperaturesByCountry.csv' is uploaded to your GitHub repository.")
-    st.info(f"System Error Log: {e}")
+    st.error("🚨 WARNING: GLOBAL TEMPERATURE LEVELS EXCEED SAFETY THRESHOLD")
