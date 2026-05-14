@@ -1,221 +1,182 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from datetime import datetime
+import time
 
-# --- ARCHITECTURAL SETUP ---
+# --- STAGE 0: ULTIMATE HUD CONFIG ---
 st.set_page_config(
-    page_title="NEURAL-CHRONOS | SYSTEM_v5.0", 
-    layout="wide", 
+    page_title="CHRONOS_OS | v6.0",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- THE CYBER-CORE ENGINE (CSS) ---
+# --- STAGE 1: CINEMATIC VISUAL ENGINE ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@200;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@200&display=swap');
 
-    /* Global UI Reset */
+    /* Cinematic Deep Space Background */
     .stApp {
-        background: #020205;
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                    url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         color: #00f2ff;
         font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Ambient HUD Background */
-    .stApp::before {
-        content: "";
+    /* Floating Scanline Effect */
+    .scanline {
+        width: 100%;
+        height: 100px;
+        z-index: 10;
+        background: linear-gradient(0deg, rgba(0, 242, 255, 0) 0%, rgba(0, 242, 255, 0.1) 50%, rgba(0, 242, 255, 0) 100%);
+        opacity: 0.1;
         position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: 
-            linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-        background-size: 30px 30px;
-        pointer-events: none;
-        z-index: 0;
+        bottom: 100%;
+        animation: scan 6s linear infinite;
     }
+    @keyframes scan { 0% { bottom: 100%; } 100% { bottom: -100%; } }
 
-    /* Tactical Header */
-    .tactical-header {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 3rem;
-        font-weight: 900;
-        letter-spacing: 15px;
-        text-align: left;
-        color: #fff;
-        text-shadow: 0 0 20px #00f2ff;
-        border-left: 10px solid #ff0055;
-        padding-left: 20px;
-        margin-bottom: 5px;
-    }
-
-    /* Data Tiles (Artifacts) */
-    .data-tile {
-        background: rgba(0, 242, 255, 0.02);
+    /* Glassmorphic Container */
+    .glass-card {
+        background: rgba(0, 20, 40, 0.6);
+        backdrop-filter: blur(15px);
         border: 1px solid rgba(0, 242, 255, 0.2);
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 2px;
-        position: relative;
-        overflow: hidden;
-    }
-    .data-tile::after {
-        content: "SCANNING...";
-        position: absolute;
-        top: 0; right: 5px;
-        font-size: 0.5rem;
-        color: #ff0055;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
     }
 
-    /* Sci-Fi Buttons */
+    /* Glitch Header */
+    .glitch-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 5rem;
+        font-weight: 900;
+        letter-spacing: 20px;
+        color: #fff;
+        text-shadow: 3px 0 #ff0055, -3px 0 #00f2ff;
+        margin-bottom: 0px;
+    }
+
+    /* Continent Selection Hex-Tiles */
     .stButton>button {
-        background: transparent !important;
-        color: #00f2ff !important;
-        border: 1px solid #00f2ff !important;
-        border-radius: 0px !important;
-        width: 100% !important;
+        background: rgba(0, 242, 255, 0.05) !important;
+        color: #fff !important;
+        border: 1px solid rgba(0, 242, 255, 0.3) !important;
         font-family: 'Orbitron' !important;
-        transition: 0.3s !important;
-        letter-spacing: 2px;
-    }
-    .stButton>button:hover {
-        background: #00f2ff !important;
-        color: #000 !important;
-        box-shadow: 0 0 20px #00f2ff;
+        height: 150px !important;
+        width: 100% !important;
+        font-size: 1rem !important;
+        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-radius: 10px !important;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: #ff0055; }
+    .stButton>button:hover {
+        background: rgba(0, 242, 255, 0.2) !important;
+        border-color: #00f2ff !important;
+        box-shadow: 0 0 30px #00f2ff;
+        transform: translateY(-10px) !important;
+    }
+
+    /* Hide standard Streamlit clutter */
+    header, footer {visibility: hidden;}
     </style>
+    
+    <div class="scanline"></div>
 """, unsafe_allow_html=True)
 
-# --- SYSTEM STATE ---
-if 'uplink' not in st.session_state:
-    st.session_state.uplink = False
+# --- STAGE 2: NAVIGATION LOGIC ---
+if 'page' not in st.session_state:
+    st.session_state.page = 'gateway'
 
-# --- LOGIC: DATA GENERATOR ---
-def get_telemetry():
-    years = np.arange(1900, 2026)
-    temp = np.linspace(14, 16.5, len(years)) + np.random.normal(0, 0.1, len(years))
-    return pd.DataFrame({"Year": years, "Global_Index": temp})
-
-df = get_telemetry()
-
-# --- INTERFACE: THE GATEWAY ---
-if not st.session_state.uplink:
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        st.markdown('<div class="tactical-header">CHRONOS_OS</div>', unsafe_allow_html=True)
-        st.markdown("<p style='letter-spacing:5px;'>PLANETARY DEFENSE & THERMAL ARCHIVE</p>", unsafe_allow_html=True)
+# --- PAGE 1: THE GATEWAY (THE PORTAL) ---
+if st.session_state.page == 'gateway':
+    st.markdown("<br><br><br><br>", unsafe_allow_html=True)
+    
+    # Outer Layout Columns
+    _, center_col, _ = st.columns([1, 4, 1])
+    
+    with center_col:
         st.markdown("""
-        > **UPLINK STATUS:** OFFLINE  
-        > **ENCRYPTION:** NEURAL-SYNC REQUIRED  
-        > **MISSION:** RECONSTRUCT HISTORICAL THERMAL DECAY
-        """)
-        if st.button("ESTABLISH UPLINK"):
-            st.session_state.uplink = True
-            st.rerun()
-    with col2:
-        # Animated HUD Graphic (Radar)
-        theta = np.linspace(0, 2*np.pi, 100)
-        fig_radar = go.Figure()
-        fig_radar.add_trace(go.Scatter(x=np.cos(theta), y=np.sin(theta), mode='lines', line=dict(color='#00f2ff', width=1)))
-        fig_radar.update_layout(width=300, height=300, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False, xaxis_visible=False, yaxis_visible=False)
-        st.plotly_chart(fig_radar, config={'displayModeBar': False})
-
-# --- INTERFACE: THE TACTICAL DECK ---
-else:
-    # TOP HUD
-    h1, h2, h3 = st.columns([2, 1, 1])
-    with h1:
-        st.markdown('<div class="tactical-header" style="font-size:1.5rem;">NEURAL-CHRONOS: ACTIVE</div>', unsafe_allow_html=True)
-    with h2:
-        st.markdown(f"**UPLINK_TIME:** {datetime.now().strftime('%H:%M:%S')}")
-    with h3:
-        if st.button("TERMINATE"):
-            st.session_state.uplink = False
-            st.rerun()
-
-    st.markdown("---")
-
-    # MAIN THREE-PANEL LAYOUT
-    left_wing, center_core, right_wing = st.columns([1, 2.5, 1])
-
-    with left_wing:
-        st.markdown("### [ SYSTEM LOGS ]")
-        st.markdown("""
-        <div class="data-tile">
-            <small>CORE_TEMP</small><br><b style="color:#ff0055;">CRITICAL: +1.2°C</b>
-        </div>
-        <div class="data-tile">
-            <small>SURVIVAL_INDEX</small><br><b>84.2%</b>
-        </div>
-        <div class="data-tile">
-            <small>ATMOS_CARBON</small><br><b>420.1 PPM</b>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.info("SENSORS: Detected thermal drift in Sector 7-G (Arctic).")
-        st.warning("ALERT: Permafrost integrity failing.")
-
-    with center_core:
-        # THE QUANTUM GRID (Dynamic Graph)
-        st.markdown("### [ TEMPORAL ANALYSIS GRID ]")
-        
-        # Timeline Manipulator
-        target_year = st.select_slider("TEMPORAL_FOCUS", options=df['Year'].tolist(), value=2025)
-        
-        filtered_df = df[df['Year'] <= target_year]
-        
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=filtered_df['Year'], 
-            y=filtered_df['Global_Index'],
-            mode='lines',
-            line=dict(color='#00f2ff', width=3),
-            fill='tozeroy',
-            fillcolor='rgba(0, 242, 255, 0.1)'
-        ))
-        
-        fig.update_layout(
-            template="plotly_dark",
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(showgrid=False, zeroline=False),
-            yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', title="DECAY_INDEX"),
-            margin=dict(l=0, r=0, t=0, b=0),
-            height=400
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown(f"""
-            <div style="background:rgba(255,0,85,0.1); border: 1px solid #ff0055; padding:20px; text-align:center;">
-                <h2 style="margin:0; font-family:Orbitron;">YEAR {target_year} TELEMETRY</h2>
-                <small>ANOMALY DETECTED: {0.01 * (target_year-1900):.2f} SIGMA</small>
+            <div class="glass-card">
+                <h1 class="glitch-title">CHRONOS</h1>
+                <p style="letter-spacing: 12px; color: #ff0055; margin-bottom: 30px;">NEURAL ARCHIVE UPLINK</p>
+                <p style="color: #ccc; max-width: 600px; margin: auto; line-height: 1.8;">
+                    Welcome to the Last Legacy. System is synchronizing with satellite telemetry 
+                    to map 250 years of thermal data. Prepare for cognitive immersion.
+                </p>
             </div>
         """, unsafe_allow_html=True)
-
-    with right_wing:
-        st.markdown("### [ ARTIFACTS ]")
         
-        # Conditional information based on the slider
-        if target_year < 1950:
-            st.markdown('<div class="data-tile"><b>ARTIFACT: COAL_ERA</b><br>Industrial expansion begins. Smoke obscures the sun.</div>', unsafe_allow_html=True)
-        elif target_year < 2000:
-            st.markdown('<div class="data-tile"><b>ARTIFACT: PLASTIC_AGE</b><br>Global temperatures break 100-year records.</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="data-tile"><b>ARTIFACT: THE_TIPPING_POINT</b><br>Feedback loops active. System destabilization imminent.</div>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        if st.button("SCAN SECTOR 01"): st.toast("Scanning North America...")
-        if st.button("SCAN SECTOR 02"): st.toast("Scanning Europe...")
-        if st.button("SCAN SECTOR 03"): st.toast("Scanning Asia...")
+        # Center the Start Button
+        _, btn_col, _ = st.columns([1, 1, 1])
+        with btn_col:
+            if st.button("INITIATE SYNC"):
+                with st.empty():
+                    for percent_complete in range(101):
+                        time.sleep(0.01)
+                        st.write(f"<p style='text-align:center;'>SYNCING DATA CORES... {percent_complete}%</p>", unsafe_allow_html=True)
+                st.session_state.page = 'selection'
+                st.rerun()
 
-# --- AMBIENT FOOTER ---
+# --- PAGE 2: SECTOR SELECTION (THE WORLD MAP) ---
+elif st.session_state.page == 'selection':
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; font-family:Orbitron; letter-spacing:10px;'>SELECT OPERATIONAL SECTOR</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#ff0055;'>[ TARGETING GLOBAL HEATMAP COORDINATES ]</p>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Continent Buttons with distinct visual cues
+    c1, c2, c3 = st.columns(3)
+    c4, c5, c6 = st.columns(3)
+
+    # Each button is styled via CSS above to look like a high-tech "Zone Token"
+    with c1:
+        if st.button("NORTH AMERICA\n[SECTOR 01]"):
+            st.session_state.sector = "NA"
+            st.toast("Accessing NA Data Core...")
+    with c2:
+        if st.button("EUROPE\n[SECTOR 02]"):
+            st.session_state.sector = "EU"
+    with c3:
+        if st.button("ASIA\n[SECTOR 03]"):
+            st.session_state.sector = "AS"
+    with c4:
+        if st.button("SOUTH AMERICA\n[SECTOR 04]"):
+            st.session_state.sector = "SA"
+    with c5:
+        if st.button("AFRICA\n[SECTOR 05]"):
+            st.session_state.sector = "AF"
+    with c6:
+        if st.button("OCEANIA\n[SECTOR 06]"):
+            st.session_state.sector = "OC"
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    _, exit_col, _ = st.columns([2, 1, 2])
+    with exit_col:
+        if st.button("DISCONNECT"):
+            st.session_state.page = 'gateway'
+            st.rerun()
+
+    # Sidebar HUD for added "coolness"
+    with st.sidebar:
+        st.markdown("### SYSTEM HUD")
+        st.write("---")
+        st.write("🛰️ SAT_LINK: STABLE")
+        st.write("🌡️ AVG_HEAT: +1.2°C")
+        st.write("📅 DATE: MAY 2026")
+        st.progress(85)
+        st.markdown("---")
+        st.caption("SCANNING_ENVIRONMENTAL_ARTIFACTS...")
+
+# --- BOTTOM HUD STATUS BAR ---
 st.markdown("""
-    <div style="position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.8); font-size:0.6rem; color:#444; padding:5px; text-align:center; z-index:1000;">
-        NEURAL-CHRONOS ENGINE v5.0 | ACCESSING NOAA_GISS_ENCRYPTED_DATABASE | LATENCY: 14MS | AUTH: ADMIN_LEGACY
+    <div style="position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.8); font-size:0.6rem; color:#00f2ff; padding:5px; text-align:center; border-top: 1px solid rgba(0, 242, 255, 0.2);">
+        ENCRYPTED SESSION | USER: ADMIN_7G | LOCATION: EARTH_SECTOR_7
     </div>
 """, unsafe_allow_html=True)

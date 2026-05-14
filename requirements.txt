@@ -1,3 +1,7 @@
 streamlit
 pandas
+numpy
 plotly
+streamlit-lottie
+requests
+pydeck
