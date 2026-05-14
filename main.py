@@ -3,128 +3,131 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# --- ADVANCED SYSTEM CONFIGURATION ---
+# --- ADVANCED UI ENGINE CONFIGURATION ---
 st.set_page_config(
-    page_title="TERMINAL X: CLIMATE ENGINE",
-    page_icon="📡",
+    page_title="NEURAL TERMINAL v2.0",
+    page_icon="💠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for high-end cinematic visuals and interactive UI
+# Custom CSS for a professional, high-fidelity cybernetic interface
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@300;500&display=swap');
 
     :root {
-        --neon-blue: #00f3ff;
-        --neon-purple: #bc13fe;
-        --deep-bg: #030303;
-        --glitch-red: rgba(255,0,80,0.8);
+        --primary: #00fff2;
+        --secondary: #7000ff;
+        --bg-dark: #0a0a0c;
+        --panel-bg: rgba(20, 20, 25, 0.8);
     }
 
     html, body, [data-testid="stAppViewContainer"] {
-        background-color: var(--deep-bg);
-        color: white;
-        font-family: 'Space Mono', monospace;
-        overflow-x: hidden;
+        background-color: var(--bg-dark);
+        color: #e0e0e0;
+        font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Cinematic Landing Page Overlay */
-    .hero-wrapper {
+    /* Cinematic Landing Section */
+    .hero-container {
         height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background: radial-gradient(circle at center, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
-        position: relative;
+        background: radial-gradient(circle at center, rgba(112, 0, 255, 0.15) 0%, transparent 75%);
+        border: 1px solid rgba(0, 255, 242, 0.1);
+        margin: 10px;
     }
 
-    .main-title {
-        font-family: 'Syncopate', sans-serif;
-        font-size: 8vw;
+    .glitch-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 7rem;
         font-weight: 700;
-        letter-spacing: -2px;
-        line-height: 1;
-        margin: 0;
-        background: linear-gradient(to bottom, #fff 40%, #555 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        position: relative;
-        z-index: 10;
+        letter-spacing: 15px;
+        color: white;
+        text-shadow: 2px 2px var(--secondary), -2px -2px var(--primary);
+        margin-bottom: 0;
     }
 
-    .sub-glitch {
-        font-size: 1.2rem;
-        letter-spacing: 12px;
-        text-transform: uppercase;
-        color: var(--neon-blue);
-        margin-top: 10px;
-        text-shadow: 0 0 10px var(--neon-blue);
-    }
-
-    /* Interactive Sector Image Buttons */
-    .img-btn-frame {
+    /* Interactive Sector Grid */
+    .sector-wrap {
         position: relative;
-        width: 100%;
-        height: 400px;
-        border: 1px solid rgba(255,255,255,0.1);
         overflow: hidden;
-        transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+        height: 450px;
     }
 
-    .img-btn-frame img {
+    .sector-wrap:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
+        transform: translateY(-5px);
+    }
+
+    .sector-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: grayscale(1) brightness(0.5);
+        filter: grayscale(1) contrast(1.2) brightness(0.6);
         transition: 0.8s;
     }
 
-    .img-btn-frame:hover {
-        border-color: var(--neon-blue);
-        box-shadow: 0 0 40px rgba(0, 243, 255, 0.3);
+    .sector-wrap:hover .sector-img {
+        filter: grayscale(0) brightness(0.8);
+        transform: scale(1.05);
     }
 
-    .img-btn-frame:hover img {
-        filter: grayscale(0) scale(1.1);
-    }
-
-    .sector-label {
+    .overlay-text {
         position: absolute;
-        bottom: 20px;
-        left: 20px;
-        font-family: 'Syncopate', sans-serif;
-        font-size: 1.5rem;
-        color: white;
-        text-shadow: 2px 2px 4px black;
-        z-index: 5;
+        bottom: 30px;
+        left: 30px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        z-index: 10;
+        color: var(--primary);
+        pointer-events: none;
     }
 
-    /* Dashboard Widgets */
-    .stSlider > div > div > div > div {
-        background-color: var(--neon-blue) !important;
+    /* Dashboard UI Elements */
+    .metric-card {
+        background: var(--panel-bg);
+        border: 1px solid rgba(0, 255, 242, 0.2);
+        padding: 25px;
+        border-radius: 4px;
+        margin-bottom: 20px;
     }
 
-    .stMultiSelect div[data-baseweb="select"] {
-        background-color: rgba(255,255,255,0.05) !important;
-        border: 1px solid var(--neon-blue) !important;
+    /* Global Button Overrides */
+    .stButton>button {
+        background: transparent !important;
+        border: 1px solid var(--primary) !important;
+        color: var(--primary) !important;
+        font-family: 'Orbitron', sans-serif !important;
+        letter-spacing: 2px;
+        border-radius: 0 !important;
+        transition: 0.3s !important;
+    }
+
+    .stButton>button:hover {
+        background: var(--primary) !important;
+        color: black !important;
+        box-shadow: 0 0 15px var(--primary);
     }
 
     header, footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
-# --- APP STATE LOGIC ---
-if 'view' not in st.session_state:
-    st.session_state.view = 'hero'
-if 'selected_sector' not in st.session_state:
-    st.session_state.selected_sector = None
+# --- ENGINE CORE ---
+if 'state' not in st.session_state:
+    st.session_state.state = 'intro'
+if 'region' not in st.session_state:
+    st.session_state.region = None
 
 @st.cache_data
-def load_climate_engine():
+def load_global_dataset():
     try:
         df = pd.read_csv("GlobalLandTemperaturesByCountry.csv")
         df['dt'] = pd.to_datetime(df['dt'])
@@ -133,152 +136,139 @@ def load_climate_engine():
     except:
         return pd.DataFrame()
 
-data = load_climate_engine()
+data = load_global_dataset()
 
-# Region Config
-SECTORS = {
+# Sector Configuration
+REGION_CONFIG = {
     "ASIA": {
-        "src": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1000",
-        "list": ["Vietnam", "Thailand", "China", "India", "Japan", "South Korea"]
+        "img": "https://images.unsplash.com/photo-1535139262971-c3f8477c2eeb?w=1200",
+        "targets": ["Vietnam", "Thailand", "China", "India", "Japan", "South Korea"]
     },
     "EUROPE": {
-        "src": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1000",
-        "list": ["Germany", "France", "Italy", "Spain", "United Kingdom", "Norway"]
+        "img": "https://images.unsplash.com/photo-1490642914619-7955a3fd483c?w=1200",
+        "targets": ["Germany", "France", "Italy", "Spain", "United Kingdom", "Sweden"]
     },
     "AMERICAS": {
-        "src": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1000",
-        "list": ["United States", "Canada", "Brazil", "Mexico", "Argentina"]
+        "img": "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=1200",
+        "targets": ["United States", "Canada", "Brazil", "Mexico", "Argentina"]
     },
     "AFRICA": {
-        "src": "https://images.unsplash.com/photo-1523805081446-ed9a7bb89973?w=1000",
-        "list": ["Egypt", "Nigeria", "South Africa", "Kenya", "Mali"]
+        "img": "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1200",
+        "targets": ["Egypt", "Nigeria", "South Africa", "Kenya", "Morocco"]
     }
 }
 
-# --- SCREEN 1: THE HERO ---
-if st.session_state.view == 'hero':
+# --- VIEW 01: CINEMATIC ENTRANCE ---
+if st.session_state.state == 'intro':
     st.markdown("""
-        <div class="hero-wrapper">
-            <div class="sub-glitch">GLOBAL_THERMAL_ENGINE</div>
-            <h1 class="main-title">TERMINAL<br>X-2026</h1>
-            <div style="margin-top: 40px; color:rgba(255,255,255,0.4); font-size:0.8rem; letter-spacing:5px;">
-                DECRYPTING ENVIRO-DATA... 100% COMPLETE
-            </div>
+        <div class="hero-container">
+            <p style="letter-spacing: 10px; color: var(--primary); margin-bottom: 0;">SATELLITE DOWNLINK // 2026</p>
+            <h1 class="glitch-title">CLIMATE CORE</h1>
+            <p style="opacity: 0.4; margin-top: 20px;">ENCRYPTED GEOSPATIAL ANALYSIS TERMINAL</p>
         </div>
     """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([2, 1, 2])
-    with col2:
-        if st.button("INITIALIZE UPLINK", use_container_width=True):
-            st.session_state.view = 'selection'
+    c1, c2, c3 = st.columns([2, 1, 2])
+    with c2:
+        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+            st.session_state.state = 'grid'
             st.rerun()
 
-# --- SCREEN 2: INTERACTIVE SECTOR SELECTION ---
-elif st.session_state.view == 'selection':
-    st.markdown("<h2 style='text-align:center; font-family:Syncopate; margin-top:50px;'>SELECT OPERATIONAL SECTOR</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#555;'>CLICK IMAGE TO TARGET COORDINATES</p>", unsafe_allow_html=True)
+# --- VIEW 02: SECTOR TARGETING ---
+elif st.session_state.state == 'grid':
+    st.markdown("<h2 style='text-align:center; font-family:Orbitron; margin: 40px 0;'>GEOGRAPHIC SECTOR LOCK</h2>", unsafe_allow_html=True)
     
     cols = st.columns(2)
+    sectors_list = list(REGION_CONFIG.items())
     
-    # Render Asia & Europe
-    for i, (name, content) in enumerate(list(SECTORS.items())[:2]):
+    for i in range(2): # First Row
+        name, meta = sectors_list[i]
         with cols[i]:
-            st.markdown(f"""
-                <div class="img-btn-frame">
-                    <img src="{content['src']}">
-                    <div class="sector-label">{name}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"LOCK {name}", use_container_width=True):
-                st.session_state.selected_sector = name
-                st.session_state.view = 'dashboard'
+            st.markdown(f'<div class="sector-wrap"><img src="{meta["img"]}" class="sector-img"><div class="overlay-text">{name}</div></div>', unsafe_allow_html=True)
+            if st.button(f"ENGAGE {name}", use_container_width=True):
+                st.session_state.region = name
+                st.session_state.state = 'monitor'
                 st.rerun()
 
-    # Render Americas & Africa
     cols2 = st.columns(2)
-    for i, (name, content) in enumerate(list(SECTORS.items())[2:]):
-        with cols2[i]:
-            st.markdown(f"""
-                <div class="img-btn-frame">
-                    <img src="{content['src']}">
-                    <div class="sector-label">{name}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"LOCK {name}", use_container_width=True):
-                st.session_state.selected_sector = name
-                st.session_state.view = 'dashboard'
+    for i in range(2, 4): # Second Row
+        name, meta = sectors_list[i]
+        with cols2[i-2]:
+            st.markdown(f'<div class="sector-wrap"><img src="{meta["img"]}" class="sector-img"><div class="overlay-text">{name}</div></div>', unsafe_allow_html=True)
+            if st.button(f"ENGAGE {name}", use_container_width=True):
+                st.session_state.region = name
+                st.session_state.state = 'monitor'
                 st.rerun()
 
-# --- SCREEN 3: PROFESSIONAL DASHBOARD ---
-elif st.session_state.view == 'dashboard':
+# --- VIEW 03: LIVE MONITORING DASHBOARD ---
+elif st.session_state.state == 'monitor':
     st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow-y: auto !important; }</style>", unsafe_allow_html=True)
     
-    # NAV BAR
-    n1, n2 = st.columns([5, 1])
-    n1.markdown(f"<h1>📡 {st.session_state.selected_sector} CORE DATA</h1>", unsafe_allow_html=True)
-    if n2.button("TERMINATE"):
-        st.session_state.view = 'selection'
+    # TOP NAVIGATION
+    t1, t2 = st.columns([5, 1])
+    t1.markdown(f"<h1 style='font-family:Orbitron; color:var(--primary);'>🛰️ MONITORING: {st.session_state.region}_SECTOR</h1>", unsafe_allow_html=True)
+    if t2.button("DISCONNECT"):
+        st.session_state.state = 'grid'
         st.rerun()
 
-    sector_cfg = SECTORS[st.session_state.selected_sector]
-    df_raw = data[data['Country'].isin(sector_cfg['list'])]
+    cfg = REGION_CONFIG[st.session_state.region]
+    df_sector = data[data['Country'].isin(cfg['targets'])]
 
-    # INTEGRATED FILTERS (Top Bar)
-    st.markdown("<div style='background:rgba(255,255,255,0.03); padding:20px; border:1px solid #222; margin-bottom:20px;'>", unsafe_allow_html=True)
-    f1, f2 = st.columns([1, 1])
-    with f1:
-        years = st.slider("SELECT TIMELINE RANGE", int(df_raw['Year'].min()), int(df_raw['Year'].max()), (1950, 2013))
-    with f2:
-        countries = st.multiselect("ISOLATE NATIONAL SIGNALS", sector_cfg['list'], default=sector_cfg['list'][:2])
+    # GLOBAL CONTROLS (Floating Effect)
+    st.markdown("<div style='border: 1px solid var(--primary); padding:20px; background:rgba(0,255,242,0.05); margin-bottom:30px;'>", unsafe_allow_html=True)
+    ctrl1, ctrl2 = st.columns([1, 1])
+    with ctrl1:
+        timeline = st.slider("TEMPORAL RESOLUTION (YEARS)", int(df_sector['Year'].min()), int(df_sector['Year'].max()), (1960, 2013))
+    with ctrl2:
+        isolation = st.multiselect("ISOLATE NATIONAL SIGNALS", cfg['targets'], default=cfg['targets'][:2])
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # DATA SLICING
-    filtered = df_raw[(df_raw['Year'] >= years[0]) & (df_raw['Year'] <= years[1])]
+    # DATA SLICE
+    filtered = df_sector[(df_sector['Year'] >= timeline[0]) & (df_sector['Year'] <= timeline[1])]
     
-    # VISUALIZATION GRID
+    # VISUAL ANALYTICS GRID
     m1, m2 = st.columns([2, 1])
     
     with m1:
-        st.markdown("### SPATIAL HEATMAP")
-        map_df = filtered.groupby('Country')['AverageTemperature'].mean().reset_index()
-        scope = st.session_state.selected_sector.lower() if st.session_state.selected_sector != "AMERICAS" else "north america"
+        st.markdown("#### GEOSPATIAL THERMAL SCAN")
+        map_data = filtered.groupby('Country')['AverageTemperature'].mean().reset_index()
+        scope_val = st.session_state.region.lower() if st.session_state.region != "AMERICAS" else "north america"
         
         fig_map = px.choropleth(
-            map_df, locations="Country", locationmode='country names',
-            color="AverageTemperature", color_continuous_scale="Turbo",
-            scope=scope, template="plotly_dark"
+            map_data, locations="Country", locationmode='country names',
+            color="AverageTemperature", color_continuous_scale="Electric",
+            scope=scope_val, template="plotly_dark"
         )
-        fig_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, height=500, paper_bgcolor='rgba(0,0,0,0)', geo_bgcolor='rgba(0,0,0,0)')
+        fig_map.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, height=550, paper_bgcolor='rgba(0,0,0,0)', geo_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_map, use_container_width=True)
 
     with m2:
-        st.markdown("### LIVE METRICS")
-        top_hot = map_df.sort_values('AverageTemperature', ascending=False).head(3)
-        for _, row in top_hot.iterrows():
+        st.markdown("#### PEAK ANOMALIES")
+        top_list = map_data.sort_values('AverageTemperature', ascending=False).head(3)
+        for _, row in top_list.iterrows():
             st.markdown(f"""
-                <div style="border-left: 5px solid var(--neon-blue); background:rgba(0,243,255,0.05); padding:25px; margin-bottom:15px;">
-                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.5);">SIGNAL IDENTIFIED:</div>
-                    <div style="font-size:1.4rem; font-weight:bold; color:white;">{row['Country'].upper()}</div>
-                    <div style="font-size:2.8rem; color:var(--neon-blue); font-family:Syncopate;">{row['AverageTemperature']:.2f}°C</div>
+                <div class="metric-card">
+                    <p style="color:var(--primary); font-size:0.7rem; letter-spacing:3px; margin:0;">TARGET: {row['Country'].upper()}</p>
+                    <h2 style="font-family:Orbitron; margin:10px 0;">{row['AverageTemperature']:.2f}°C</h2>
+                    <div style="height:2px; width:100%; background:linear-gradient(90deg, var(--primary), transparent);"></div>
+                    <p style="color:#555; font-size:0.6rem; margin-top:5px;">SIGNAL STRENGTH: 98.4%</p>
                 </div>
             """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### TEMPORAL SIGNAL TRENDS")
-    if countries:
-        trend_data = filtered[filtered['Country'].isin(countries)].groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
-        fig_trend = px.line(
-            trend_data, x="Year", y="AverageTemperature", color="Country",
-            template="plotly_dark", markers=True
-        )
-        fig_trend.update_layout(
+    st.markdown("#### TEMPORAL VARIATION ANALYSIS")
+    if isolation:
+        trend_df = filtered[filtered['Country'].isin(isolation)].groupby(['Year', 'Country'])['AverageTemperature'].mean().reset_index()
+        fig_line = px.line(trend_df, x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
+        fig_line.update_traces(line=dict(width=3))
+        fig_line.update_layout(
             paper_bgcolor='rgba(0,0,0,0)', 
             plot_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(showgrid=False),
-            yaxis=dict(gridcolor='rgba(255,255,255,0.05)')
+            xaxis=dict(showgrid=False, zeroline=False),
+            yaxis=dict(gridcolor='rgba(255,255,255,0.05)', zeroline=False)
         )
-        st.plotly_chart(fig_trend, use_container_width=True)
+        st.plotly_chart(fig_line, use_container_width=True)
     else:
-        st.info("Awaiting country selection for signal analysis.")
+        st.warning("PLEASE SELECT TARGET SIGNALS IN THE CONTROL PANEL.")
 
-st.markdown("<p style='text-align:center; margin-top:50px; color:#222; font-size:0.7rem;'>ENCRYPTED VIA RSA-4096 // CONNECTION STABLE</p>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; padding:40px; color:#333; font-size:0.7rem; letter-spacing:5px;'>CONNECTION ENCRYPTED // AES-256 // LOCALHOST:CORE</div>", unsafe_allow_html=True)
