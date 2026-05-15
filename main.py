@@ -1,157 +1,164 @@
 import streamlit as st
-import time
 
-# --- INITIAL SYSTEM CONFIG ---
+# --- SYSTEM CONFIG ---
 st.set_page_config(
-    page_title="CHRONOS_ELITE | v7.0",
+    page_title="CHRONOS_COMMAND | v8.0",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- THE "ELITE" VISUAL ENGINE (EXTREME CSS) ---
+# --- THE "CLIMATE-CORE" VISUAL ENGINE ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Syncopate:wght@700&family=JetBrains+Mono:wght@200&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap');
 
-    /* Cinematic Animated Background */
+    /* Cinematic Hybrid Background: Earth + Thermal Glitch */
     .stApp {
-        background: black;
-        background-image: 
-            radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.1) 0%, transparent 80%),
-            url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072&auto=format&fit=crop');
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                    url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=2074&auto=format&fit=crop');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
+        color: #00f2ff;
+        font-family: 'Share Tech Mono', monospace;
     }
 
-    /* Floating Digital Fog */
+    /* Tactical Viewport Corners */
+    .stApp::before {
+        content: ""; position: fixed; top: 20px; left: 20px; width: 100px; height: 100px;
+        border-top: 2px solid #ff0055; border-left: 2px solid #ff0055; z-index: 100; pointer-events: none;
+    }
     .stApp::after {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
-        background-size: 100% 3px;
-        pointer-events: none;
-        z-index: 10;
+        content: ""; position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px;
+        border-bottom: 2px solid #ff0055; border-right: 2px solid #ff0055; z-index: 100; pointer-events: none;
     }
 
-    /* Neon Glitch Title */
-    .main-title {
-        font-family: 'Syncopate', sans-serif;
-        font-size: 6rem;
+    /* Sector Card Styling */
+    .sector-card {
+        background: rgba(0, 10, 20, 0.8);
+        border: 1px solid rgba(0, 242, 255, 0.3);
+        border-radius: 5px;
+        padding: 0px;
         text-align: center;
-        color: transparent;
-        -webkit-text-stroke: 1px #00f2ff;
-        filter: drop-shadow(0 0 15px #00f2ff);
-        letter-spacing: 25px;
-        margin-top: 50px;
-        animation: pulse 4s infinite alternate;
+        transition: 0.4s;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .sector-card:hover {
+        border-color: #ff0055;
+        box-shadow: 0 0 25px rgba(255, 0, 85, 0.4);
+        transform: translateY(-5px);
     }
 
-    @keyframes pulse {
-        0% { opacity: 0.5; filter: drop-shadow(0 0 5px #00f2ff); }
-        100% { opacity: 1; filter: drop-shadow(0 0 30px #ff0055); }
+    .sector-img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        filter: grayscale(100%) sepia(50%) hue-rotate(140deg) brightness(0.7);
+        transition: 0.5s;
     }
 
-    /* Sector Selection Hex-Tiles */
+    .sector-card:hover .sector-img {
+        filter: grayscale(0%) brightness(1);
+    }
+
+    /* Tactical Titles */
+    .os-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        text-align: center;
+        letter-spacing: 15px;
+        background: linear-gradient(to bottom, #fff, #00f2ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-top: 30px;
+    }
+
+    /* Custom Streamlit Button Override */
     .stButton>button {
-        background: rgba(0, 5, 10, 0.7) !important;
-        color: #00f2ff !important;
+        background: transparent !important;
         border: 1px solid #00f2ff !important;
+        color: #00f2ff !important;
         border-radius: 0px !important;
-        clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%) !important;
-        height: 180px !important;
         width: 100% !important;
-        font-family: 'Orbitron' !important;
-        font-size: 0.9rem !important;
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
-        border-left: 5px solid #ff0055 !important;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 2px;
     }
-
     .stButton>button:hover {
-        background: rgba(0, 242, 255, 0.2) !important;
-        transform: scale(1.05) rotateX(10deg) !important;
-        color: white !important;
-        box-shadow: 0 0 40px rgba(0, 242, 255, 0.5) !important;
-        border-left: 10px solid #00f2ff !important;
-    }
-
-    /* Glass Panels */
-    .glass-container {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 50px;
-        border-radius: 20px;
-        text-align: center;
+        background: #00f2ff !important;
+        color: #000 !important;
     }
 
     header, footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# --- SESSION NAVIGATION ---
-if 'nav' not in st.session_state:
-    st.session_state.nav = 'gate'
+# --- NAVIGATION ---
+if 'view' not in st.session_state:
+    st.session_state.view = 'login'
 
-# --- PAGE 1: THE GATEWAY ---
-if st.session_state.nav == 'gate':
-    st.markdown('<h1 class="main-title">CHRONOS</h1>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; letter-spacing:15px; color:#ff0055; font-weight:bold;'>[ NO_LIMIT_EDITION ]</p>", unsafe_allow_html=True)
+# --- PAGE 1: TERMINAL ACCESS ---
+if st.session_state.view == 'login':
+    st.markdown('<h1 class="os-header">CHRONOS_OS</h1>', unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#ff0055; letter-spacing:5px;'>SATELLITE DOWNLINK: ESTABLISHED</p>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown("""
-            <div class="glass-container">
-                <p style="font-family:'JetBrains Mono'; font-size:0.8rem; color:#888;">// SYSTEM STATUS: ARMED<br>// ENCRYPTION: 1024-BIT NEURAL</p>
-                <p style="margin: 30px 0; font-size:1.1rem; line-height:1.6;">
-                    Accessing the global thermal archive. Millions of data points are being 
-                    reconstructed for temporal visualization.
-                </p>
-            </div>
+        <div style="background:rgba(0,242,255,0.05); border:1px solid #00f2ff; padding:30px; text-align:center;">
+            <p>WARNING: You are accessing historical environmental records. <br>
+            Current CO2 Concentration: <b>419.7 PPM</b><br>
+            Global Anomaly: <b>+1.28°C</b></p>
+        </div>
         """, unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("ENTER THE VOID"):
-            st.session_state.nav = 'map'
+        if st.button("INITIALIZE COMMAND"):
+            st.session_state.view = 'sectors'
             st.rerun()
 
-# --- PAGE 2: SECTOR SELECTION ---
-elif st.session_state.nav == 'map':
-    st.markdown("<h2 style='text-align:center; font-family:Orbitron; letter-spacing:10px; color:#fff;'>CHOOSE SECTOR</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#ff0055;'>TARGETING NEURAL COORDINATES</p>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Continent Grid
-    row1_c1, row1_c2, row1_c3 = st.columns(3)
-    row2_c1, row2_c2, row2_c3 = st.columns(3)
-
-    with row1_c1:
-        if st.button("01_NORTH_AMERICA\n[DATA_SYNC]"): st.toast("Connecting to NA Servers...")
-    with row1_c2:
-        if st.button("02_EUROPE\n[DATA_SYNC]"): st.toast("Connecting to EU Servers...")
-    with row1_c3:
-        if st.button("03_ASIA\n[DATA_SYNC]"): st.toast("Connecting to AS Servers...")
+# --- PAGE 2: TACTICAL SECTOR MAP ---
+elif st.session_state.view == 'sectors':
+    st.markdown('<h2 style="font-family:Orbitron; letter-spacing:8px; text-align:center;">DEPLOYMENT_ZONES</h2>', unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#888;'>SELECT A CONTINENTAL SECTOR TO MONITOR THERMAL DECAY</p>", unsafe_allow_html=True)
     
-    with row2_c1:
-        if st.button("04_SOUTH_AMERICA\n[DATA_SYNC]"): st.toast("Connecting to SA Servers...")
-    with row2_c2:
-        if st.button("05_AFRICA\n[DATA_SYNC]"): st.toast("Connecting to AF Servers...")
-    with row2_c3:
-        if st.button("06_OCEANIA\n[DATA_SYNC]"): st.toast("Connecting to OC Servers...")
+    # Sector Data (Images + Info)
+    sectors = [
+        {"name": "NORTH AMERICA", "id": "S-01", "img": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=2070"},
+        {"name": "EUROPE", "id": "S-02", "img": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=2070"},
+        {"name": "ASIA", "id": "S-03", "img": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070"},
+        {"name": "SOUTH AMERICA", "id": "S-04", "img": "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?q=80&w=2076"},
+        {"name": "AFRICA", "id": "S-05", "img": "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=2071"},
+        {"name": "OCEANIA", "id": "S-06", "img": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?q=80&w=2030"}
+    ]
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    _, exit_btn, _ = st.columns([2, 1, 2])
-    with exit_btn:
-        if st.button("LOGOUT"):
-            st.session_state.nav = 'gate'
-            st.rerun()
+    # Display 3 columns
+    cols = st.columns(3)
+    for i, s in enumerate(sectors):
+        with cols[i % 3]:
+            st.markdown(f"""
+                <div class="sector-card">
+                    <img src="{s['img']}" class="sector-img">
+                    <div style="padding:15px;">
+                        <h4 style="margin:0; color:#00f2ff;">{s['name']}</h4>
+                        <small style="color:#ff0055;">{s['id']} // ACTIVE</small>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"DECODE {s['id']}"):
+                st.toast(f"Synchronizing {s['name']} Datasets...")
+            st.markdown("<br>", unsafe_allow_html=True)
 
-# --- HUD DECORATION ---
-st.sidebar.markdown("### TERMINAL_HUD")
-st.sidebar.code("""
-> CPU: 98%
-> MEM: 4.2GB
-> SYNC: ACTIVE
-> LATENCY: 2ms
-""")
-st.sidebar.progress(98)
+    st.markdown("---")
+    if st.button("TERMINATE UPLINK"):
+        st.session_state.view = 'login'
+        st.rerun()
+
+# --- SIDEBAR HUD ---
+with st.sidebar:
+    st.markdown("### DATA_FEED")
+    st.error("ANOMALY: Arctic Ice Sheet at 14% integrity.")
+    st.warning("SENSOR_09: Thermal drift detected in Amazon Basin.")
+    st.info("ARCHIVE: 250 Years of data ready for injection.")
