@@ -19,7 +19,7 @@ st.markdown("""
     }
 
     /* -------------------------------------------
-       PAGE 1: CINEMATIC GATEWAY BACKGROUND
+       PAGE 1: CINEMATIC GATEWAY BACKGROUND (FIXED Z-INDEX)
        ------------------------------------------- */
     .landing-screen {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -27,7 +27,7 @@ st.markdown("""
                     url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=1974');
         background-size: cover; background-position: center;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        z-index: 1;
+        z-index: 0; /* Đẩy background xuống lớp nền thấp nhất */
     }
 
     /* -------------------------------------------
@@ -48,31 +48,35 @@ st.markdown("""
     @keyframes led-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
     /* -------------------------------------------
-       FIXED: GLOWING NATIVE STREAMLIT BUTTONS
+       GLOWING NATIVE STREAMLIT BUTTONS (FORCED TOP VISIBILITY)
        ------------------------------------------- */
+    div.stButton {
+        position: relative;
+        z-index: 9999 !important; /* Ép nút luôn nằm trên cùng mọi lớp phủ */
+    }
     div.stButton > button {
-        background: rgba(0, 242, 255, 0.05) !important;
+        background: rgba(0, 242, 255, 0.08) !important;
         border: 2px solid #00f2ff !important;
         color: #ffffff !important;
         font-family: 'Orbitron', sans-serif !important;
         font-weight: 700 !important;
         letter-spacing: 2px !important;
         border-radius: 8px !important;
-        padding: 15px 25px !important;
+        padding: 16px 32px !important;
         width: 100% !important;
         text-align: center !important;
-        box-shadow: 0 0 15px rgba(0, 242, 255, 0.2) !important;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4) !important;
         transition: all 0.25s ease-in-out !important;
     }
     div.stButton > button:hover {
         border-color: #ff0055 !important;
         color: #ffffff !important;
-        background: rgba(255, 0, 85, 0.15) !important;
-        box-shadow: 0 0 25px rgba(255, 0, 85, 0.6) !important;
-        transform: scale(1.02);
+        background: rgba(255, 0, 85, 0.2) !important;
+        box-shadow: 0 0 30px rgba(255, 0, 85, 0.8) !important;
+        transform: scale(1.05);
     }
     
-    /* Specific styling for Card Selection in Page 2 */
+    /* Card Container Configuration for Page 2 */
     .card-container {
         background: rgba(0, 242, 255, 0.02);
         border: 1px solid rgba(0, 242, 255, 0.1);
@@ -83,7 +87,7 @@ st.markdown("""
     }
     .active-card {
         border-color: #ff0055 !important;
-        box-shadow: 0 0 20px rgba(255, 0, 85, 0.2) !important;
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.3) !important;
     }
 
     /* Pod Typography Inside Cards */
@@ -136,6 +140,7 @@ climate_archive = {
 # TRANG 1: CINEMATIC LANDING GATEWAY
 # ==============================================================================
 if st.session_state.page_router == 'p1_landing':
+    # Khung giao diện tĩnh
     st.markdown("""
         <div class="landing-screen">
             <p style="font-family:'Orbitron'; color:#ff0055; letter-spacing:14px; font-weight:700; margin-bottom:5px;">CODETOOPIA PROJECT NETWORK</p>
@@ -146,10 +151,11 @@ if st.session_state.page_router == 'p1_landing':
         </div>
     """, unsafe_allow_html=True)
     
-    # Đặt nút bấm ra ngoài thẻ div tuyệt đối để Streamlit bắt được sự kiện click
-    _, click_box, _ = st.columns([1.8, 1.2, 1.8])
+    # Tạo layout cột để đặt nút bấm Native nằm căn giữa hoàn hảo đè lên giao diện chính
+    st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+    _, click_box, _ = st.columns([1.6, 1.2, 1.6])
     with click_box:
-        if st.button("INITIALIZE SYSTEM", key="enter_p1"):
+        if st.button("INITIALIZE SYSTEM ➔", key="enter_p1_final"):
             st.session_state.page_router = 'p2_console'
             st.rerun()
 
@@ -179,7 +185,6 @@ elif st.session_state.page_router == 'p2_console':
 
     st.markdown("<h2 style='font-family:Orbitron; text-align:center; color:#fff; letter-spacing:4px; margin: 0 0 20px 0;'>QUANTUM CONSOLE: SELECT SECTOR</h2>", unsafe_allow_html=True)
     
-    # Vẽ Ma trận Thẻ 3x2 bằng Columns
     row1_col1, row1_col2, row1_col3 = st.columns(3)
     row2_col1, row2_col2, row2_col3 = st.columns(3)
     all_grid_slots = [row1_col1, row1_col2, row1_col3, row2_col1, row2_col2, row2_col3]
@@ -188,7 +193,6 @@ elif st.session_state.page_router == 'p2_console':
         with all_grid_slots[idx]:
             is_active_class = "active-card" if st.session_state.selected_continent == zone else ""
             
-            # Khung thông tin tĩnh
             st.markdown(f"""
                 <div class="card-container {is_active_class}">
                     <div class="pod-title">{zone}</div>
@@ -199,12 +203,10 @@ elif st.session_state.page_router == 'p2_console':
                 </div>
             """, unsafe_allow_html=True)
             
-            # Nút chọn Native nằm ngay dưới hộp thông tin để nhấn kích hoạt
             if st.button(f"CONNECT TO {zone}", key=f"btn_{zone}"):
                 st.session_state.selected_continent = zone
                 st.rerun()
             
-    # Nút chuyển tiếp lớn dẫn thẳng vào Trang 3 nằm ở đáy màn hình
     st.markdown("<br>", unsafe_allow_html=True)
     _, action_center, _ = st.columns([1.5, 1, 1.5])
     with action_center:
@@ -232,7 +234,6 @@ elif st.session_state.page_router == 'p3_lab':
     cur_zone = st.session_state.selected_continent
     cur_data = climate_archive[cur_zone]
     
-    # Giao diện Phòng Lab chính
     st.markdown(f"""
         <div class="lab-dashboard">
             <div class="lab-banner">
@@ -260,12 +261,10 @@ elif st.session_state.page_router == 'p3_lab':
             </div>
     """, unsafe_allow_html=True)
     
-    # Biểu đồ phân tích nằm gọn dưới đáy phòng Lab
     lab_chart_data = [random.uniform(1.2, 2.9) for _ in range(45)]
     st.line_chart(lab_chart_data, height=200, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # Nút quay về Trang 2
     st.markdown("<br>", unsafe_allow_html=True)
     _, back_col, _ = st.columns([2.2, 1, 2.2])
     with back_col:
