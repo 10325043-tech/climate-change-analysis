@@ -27,7 +27,7 @@ st.markdown("""
                     url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=1974');
         background-size: cover; background-position: center;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        z-index: 9999;
+        z-index: 1;
     }
 
     /* -------------------------------------------
@@ -48,42 +48,54 @@ st.markdown("""
     @keyframes led-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
     /* -------------------------------------------
-       PAGE 2: GLOWING DATA POD BUTTONS (NATIVE OVERRIDE)
+       FIXED: GLOWING NATIVE STREAMLIT BUTTONS
        ------------------------------------------- */
     div.stButton > button {
-        background: rgba(0, 242, 255, 0.02) !important;
-        border: 1px solid rgba(0, 242, 255, 0.2) !important;
-        color: white !important;
-        border-radius: 10px !important;
-        padding: 22px 20px !important;
+        background: rgba(0, 242, 255, 0.05) !important;
+        border: 2px solid #00f2ff !important;
+        color: #ffffff !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-weight: 700 !important;
+        letter-spacing: 2px !important;
+        border-radius: 8px !important;
+        padding: 15px 25px !important;
         width: 100% !important;
-        text-align: left !important;
+        text-align: center !important;
+        box-shadow: 0 0 15px rgba(0, 242, 255, 0.2) !important;
         transition: all 0.25s ease-in-out !important;
     }
     div.stButton > button:hover {
         border-color: #ff0055 !important;
-        background: rgba(255, 0, 85, 0.08) !important;
-        box-shadow: 0 0 18px rgba(255, 0, 85, 0.4) !important;
-        transform: translateY(-2px);
+        color: #ffffff !important;
+        background: rgba(255, 0, 85, 0.15) !important;
+        box-shadow: 0 0 25px rgba(255, 0, 85, 0.6) !important;
+        transform: scale(1.02);
     }
     
-    /* Card Active Highlight Style Override */
-    .active-btn-wrapper div.stButton > button {
-        border-color: #00f2ff !important;
-        background: rgba(0, 242, 255, 0.08) !important;
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.3) !important;
+    /* Specific styling for Card Selection in Page 2 */
+    .card-container {
+        background: rgba(0, 242, 255, 0.02);
+        border: 1px solid rgba(0, 242, 255, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .active-card {
+        border-color: #ff0055 !important;
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.2) !important;
     }
 
-    /* Pod Typography Inside Buttons */
-    .pod-title { font-family: 'Orbitron'; font-size: 1.3rem; font-weight: 700; color: #fff; }
-    .pod-grid { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.85rem; color: #00f2ff; }
+    /* Pod Typography Inside Cards */
+    .pod-title { font-family: 'Orbitron'; font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 5px;}
+    .pod-grid { display: flex; justify-content: space-between; font-size: 0.9rem; color: #00f2ff; margin-bottom: 12px; }
     .pod-status-alert { color: #ff0055; font-weight: bold; letter-spacing: 1px; }
 
     /* -------------------------------------------
        PAGE 3: EXPERIMENTAL LABORATORY SYSTEM
        ------------------------------------------- */
     .lab-dashboard {
-        height: calc(100vh - 100px);
+        height: calc(100vh - 160px);
         border: 2px solid #00f2ff; border-radius: 16px; padding: 30px;
         background: rgba(0, 8, 22, 0.65); backdrop-filter: blur(15px);
         box-shadow: inset 0 0 50px rgba(0, 242, 255, 0.15), 0 0 30px rgba(0,242,255,0.05);
@@ -93,10 +105,10 @@ st.markdown("""
         display: flex; justify-content: space-between; align-items: center;
         border-bottom: 2px solid rgba(0, 242, 255, 0.25); padding-bottom: 15px;
     }
-    .lab-main-layout { display: flex; gap: 25px; margin: 20px 0; height: calc(100% - 320px); }
-    .lab-visual { width: 40%; object-fit: cover; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; }
+    .lab-main-layout { display: flex; gap: 25px; margin: 20px 0; height: calc(100% - 300px); }
+    .lab-visual { width: 45%; object-fit: cover; border: 1px solid rgba(0,242,255,0.3); border-radius: 10px; }
     .lab-logger {
-        width: 60%; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px;
+        width: 55%; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px;
         font-size: 0.95rem; color: #ccc; line-height: 1.6; border: 1px solid rgba(255,255,255,0.02);
     }
 
@@ -128,17 +140,16 @@ if st.session_state.page_router == 'p1_landing':
         <div class="landing-screen">
             <p style="font-family:'Orbitron'; color:#ff0055; letter-spacing:14px; font-weight:700; margin-bottom:5px;">CODETOOPIA PROJECT NETWORK</p>
             <h1 style="font-family:'Orbitron'; font-size:6rem; font-weight:900; color:#00f2ff; text-shadow: 0 0 30px #00f2ff, 0 0 60px #00f2ff; margin:0;">CLIMATE VAULT</h1>
-            <p style="color:#666; font-size:1.1rem; letter-spacing:3px; margin-top:15px; max-width:700px; text-align:center; line-height:1.6;">
+            <p style="color:#666; font-size:1.1rem; letter-spacing:3px; margin-top:15px; max-width:700px; text-align:center; line-height:1.6; margin-bottom:40px;">
                 DECRYPTION KEY COMPLETED. ENTER QUANTUM ARCHIVE PROTOCOL TO REVIEW GLOBAL ANOMALIES.
             </p>
         </div>
     """, unsafe_allow_html=True)
     
-    # Grid layout to force button overlay onto center bottom smoothly
-    _, click_box, _ = st.columns([2, 1, 2])
+    # Đặt nút bấm ra ngoài thẻ div tuyệt đối để Streamlit bắt được sự kiện click
+    _, click_box, _ = st.columns([1.8, 1.2, 1.8])
     with click_box:
-        st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
-        if st.button("CONNECT TO CORE PLATFORM", use_container_width=True):
+        if st.button("INITIALIZE SYSTEM", key="enter_p1"):
             st.session_state.page_router = 'p2_console'
             st.rerun()
 
@@ -146,7 +157,6 @@ if st.session_state.page_router == 'p1_landing':
 # TRANG 2: THE VAULT SELECTION CONSOLE
 # ==============================================================================
 elif st.session_state.page_router == 'p2_console':
-    # Infinite Seamless Marquee Loop Line
     st.markdown("""
         <div class="led-marquee-container">
             <div class="led-marquee-track">
@@ -169,35 +179,37 @@ elif st.session_state.page_router == 'p2_console':
 
     st.markdown("<h2 style='font-family:Orbitron; text-align:center; color:#fff; letter-spacing:4px; margin: 0 0 20px 0;'>QUANTUM CONSOLE: SELECT SECTOR</h2>", unsafe_allow_html=True)
     
-    # Draw 6 gorgeous Pod buttons in a 3x2 Matrix Grid layout
+    # Vẽ Ma trận Thẻ 3x2 bằng Columns
     row1_col1, row1_col2, row1_col3 = st.columns(3)
     row2_col1, row2_col2, row2_col3 = st.columns(3)
-    
     all_grid_slots = [row1_col1, row1_col2, row1_col3, row2_col1, row2_col2, row2_col3]
     
     for idx, (zone, info) in enumerate(climate_archive.items()):
         with all_grid_slots[idx]:
-            pod_ui = f"""
-                <div style="width:100%;">
+            is_active_class = "active-card" if st.session_state.selected_continent == zone else ""
+            
+            # Khung thông tin tĩnh
+            st.markdown(f"""
+                <div class="card-container {is_active_class}">
                     <div class="pod-title">{zone}</div>
                     <div class="pod-grid">
                         <span>BASE LEVEL: {info['temp']}</span>
                         <span class="pod-status-alert">{info['risk']}</span>
                     </div>
                 </div>
-            """
-            is_active = "active-btn-wrapper" if st.session_state.selected_continent == zone else ""
-            st.markdown(f'<div class="{is_active}">', unsafe_allow_html=True)
-            if st.button(pod_ui, key=f"target_{zone}", use_container_width=True):
-                st.session_state.selected_continent = zone
-            st.markdown('</div>', unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-    # Navigation Action Bar at Bottom
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+            # Nút chọn Native nằm ngay dưới hộp thông tin để nhấn kích hoạt
+            if st.button(f"CONNECT TO {zone}", key=f"btn_{zone}"):
+                st.session_state.selected_continent = zone
+                st.rerun()
+            
+    # Nút chuyển tiếp lớn dẫn thẳng vào Trang 3 nằm ở đáy màn hình
+    st.markdown("<br>", unsafe_allow_html=True)
     _, action_center, _ = st.columns([1.5, 1, 1.5])
     with action_center:
         current_sel = st.session_state.selected_continent
-        if st.button(f"DEPLOY {current_sel} RESEARCH LAB ➔", use_container_width=True):
+        if st.button(f"OPEN {current_sel} RESEARCH LAB ➔", key="goto_p3"):
             st.session_state.page_router = 'p3_lab'
             st.rerun()
 
@@ -205,7 +217,6 @@ elif st.session_state.page_router == 'p2_console':
 # TRANG 3: THE HIGH-FIDELITY RESEARCH LABORATORY
 # ==============================================================================
 elif st.session_state.page_router == 'p3_lab':
-    # Small Status LED line
     st.markdown("""
         <div class="led-marquee-container">
             <div class="led-marquee-track">
@@ -221,7 +232,7 @@ elif st.session_state.page_router == 'p3_lab':
     cur_zone = st.session_state.selected_continent
     cur_data = climate_archive[cur_zone]
     
-    # Lab Box Container Wrapper
+    # Giao diện Phòng Lab chính
     st.markdown(f"""
         <div class="lab-dashboard">
             <div class="lab-banner">
@@ -249,16 +260,15 @@ elif st.session_state.page_router == 'p3_lab':
             </div>
     """, unsafe_allow_html=True)
     
-    # Dynamic Streamlit line chart fits beautifully at the bottom of the lab frame
+    # Biểu đồ phân tích nằm gọn dưới đáy phòng Lab
     lab_chart_data = [random.uniform(1.2, 2.9) for _ in range(45)]
-    st.line_chart(lab_chart_data, height=220, use_container_width=True)
-    
+    st.line_chart(lab_chart_data, height=200, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # Back button setup to return to grid selection cleanly
+    # Nút quay về Trang 2
     st.markdown("<br>", unsafe_allow_html=True)
     _, back_col, _ = st.columns([2.2, 1, 2.2])
     with back_col:
-        if st.button("⬅ RETURN TO CONSOLE", use_container_width=True):
+        if st.button("⬅ RETURN TO CONSOLE", key="back_to_p2"):
             st.session_state.page_router = 'p2_console'
             st.rerun()
