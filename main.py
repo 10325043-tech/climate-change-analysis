@@ -2,10 +2,10 @@ import streamlit as st
 import time
 import random
 
-# --- PAGE CONFIG ---
+# --- CONFIG ---
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide", initial_sidebar_state="collapsed")
 
-# --- ULTIMATE ARCADE CSS ---
+# --- UI STYLING (CSS) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Share+Tech+Mono&display=swap');
@@ -16,166 +16,123 @@ st.markdown("""
         font-family: 'Share Tech Mono', monospace;
     }
 
-    /* THE LED MARQUEE STRIP */
-    .led-marquee-container {
-        height: 50px;
-        background: #000;
-        border: 2px solid #333;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        align-items: center;
-        margin: 10px 20px;
-        box-shadow: inset 0 0 15px #ff0055;
+    /* CHỮ LED CHẠY TRÊN ĐẦU TRANG */
+    .led-bar {
+        height: 45px; background: #000; border: 1px solid #ff0055;
+        overflow: hidden; position: relative; display: flex; align-items: center;
+        margin-bottom: 20px; box-shadow: 0 0 10px #ff005533;
     }
-
     .led-text {
-        white-space: nowrap;
-        position: absolute;
-        font-family: 'Orbitron', sans-serif;
-        color: #ff0055;
-        font-size: 1.4rem;
-        font-weight: 900;
-        text-shadow: 0 0 10px #ff0055;
-        animation: marquee 12s linear infinite;
+        white-space: nowrap; position: absolute; font-family: 'Orbitron';
+        color: #ff0055; font-size: 1.1rem; animation: marquee 15s linear infinite;
     }
-
     @keyframes marquee {
         0% { transform: translateX(100%); }
         100% { transform: translateX(-100%); }
     }
 
-    /* THE MACHINE CABINET */
-    .machine-frame {
-        width: 100%; max-width: 500px; height: 700px;
-        background: #1a1a1a;
-        border: 8px solid #222;
-        border-radius: 15px;
-        position: relative;
-        margin: 0 auto;
-        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 50px rgba(0,0,0,1);
-    }
-
-    .glass-chamber {
-        position: absolute; top: 80px; left: 20px; right: 20px; bottom: 150px;
+    /* THE TERMINAL PODS */
+    .data-pod {
         background: rgba(0, 242, 255, 0.03);
-        border: 1px solid rgba(255,255,255,0.1);
-        overflow: hidden;
+        border: 1px solid rgba(0, 242, 255, 0.2);
+        border-radius: 8px; padding: 15px; margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+    .data-pod:hover {
+        border-color: #ff0055; background: rgba(255, 0, 85, 0.05);
     }
 
-    /* MECHANICAL CLAW */
-    .claw-string {
-        position: absolute; top: 0; left: 50%;
-        width: 4px; background: #444;
-        transform: translateX(-50%);
-        z-index: 10;
+    /* HOLOGRAM VIEW */
+    .hologram-display {
+        border: 2px solid #00f2ff; border-radius: 15px; padding: 30px;
+        background: rgba(0, 242, 255, 0.02); text-align: center;
+        box-shadow: 0 0 30px rgba(0,242,255,0.2);
     }
-
-    .claw-head { position: absolute; bottom: -30px; left: -22px; font-size: 40px; }
-
-    /* LAYOUT POSITIONING */
-    .center-pos { transform: translateX(0); }
-    .left-pos { transform: translateX(-30%) scale(0.9); opacity: 0.7; }
-
-    /* PRIZE DISPLAY */
-    .prize-card {
-        text-align: center;
-        animation: zoomIn 0.5s ease-out;
-        border: 1px solid #00f2ff;
-        padding: 20px;
-        background: rgba(0, 242, 255, 0.05);
-        border-radius: 15px;
-    }
-
-    @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
     header, footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# --- SESSION LOGIC ---
-if 'page' not in st.session_state: st.session_state.page = 'gate'
-if 'inventory' not in st.session_state:
-    st.session_state.inventory = [
-        {"name": "ASIA", "src": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800"},
-        {"name": "EUROPE", "src": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800"},
-        {"name": "NORTH AMERICA", "src": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800"},
-        {"name": "SOUTH AMERICA", "src": "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800"},
-        {"name": "AFRICA", "src": "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800"},
-        {"name": "OCEANIA", "src": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=800"}
-    ]
-if 'won_item' not in st.session_state: st.session_state.won_item = None
-if 'claw_active' not in st.session_state: st.session_state.claw_active = False
+# --- STATE ---
+if 'step' not in st.session_state: st.session_state.step = 'gate'
+if 'active_target' not in st.session_state: st.session_state.active_target = None
 
-# --- PAGE 1: GATEWAY ---
-if st.session_state.page == 'gate':
-    st.markdown("<br><br><br><h1 style='text-align:center; font-family:Orbitron; font-size:4rem;'>CLIMATE VAULT</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#ff0055;'>CODETOOPIA PROJECT ALPHA</p>", unsafe_allow_html=True)
-    _, col_b, _ = st.columns([2, 1, 2])
-    with col_b:
-        if st.button("CONNECT TO VAULT", use_container_width=True):
-            st.session_state.page = 'vault'
+# --- MAP DATA ---
+continents = {
+    "ASIA": {"status": "DECRYPTED", "temp": "+1.5°C", "img": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800"},
+    "EUROPE": {"status": "DECRYPTED", "temp": "+2.1°C", "img": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800"},
+    "NORTH AMERICA": {"status": "DECRYPTED", "temp": "+1.8°C", "img": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800"},
+    "SOUTH AMERICA": {"status": "DECRYPTED", "temp": "+1.2°C", "img": "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800"},
+    "AFRICA": {"status": "DECRYPTED", "temp": "+1.4°C", "img": "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800"},
+    "OCEANIA": {"status": "DECRYPTED", "temp": "+1.1°C", "img": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=800"}
+}
+
+# --- LANDING PAGE ---
+if st.session_state.step == 'gate':
+    st.markdown("<br><br><br><p style='text-align:center; font-family:Orbitron; color:#ff0055; letter-spacing:8px;'>CODETOOPIA LABS</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; font-family:Orbitron; font-size:4.5rem; margin:0; text-shadow:0 0 20px #00f2ff;'>CLIMATE VAULT</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#555;'>[ ECO-SYSTEM HISTORICAL ANOMALY TERMINAL ]</p><br>", unsafe_allow_html=True)
+    _, cb, _ = st.columns([2, 1, 2])
+    with cb:
+        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+            st.session_state.step = 'console'
             st.rerun()
 
-# --- PAGE 2: THE MACHINE ---
-elif st.session_state.page == 'vault':
-    is_shifted = "left-pos" if st.session_state.won_item else "center-pos"
-    claw_height = "380px" if st.session_state.claw_active else "60px"
-    
-    col_mach, col_info = st.columns([1.2, 1] if st.session_state.won_item else [1, 0.01])
+# --- MAIN CONSOLE PAGE ---
+elif st.session_state.step == 'console':
+    # Chữ LED chạy trên cùng
+    st.markdown("""
+        <div class="led-bar">
+            <div class="led-text">CODETOOPIA CORE SYSTEM SECURE // MONITORING CARBON ANOMALIES GLOBALLY // CHOOSE SECTOR...</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    with col_mach:
-        st.markdown(f"""
-            <div class="machine-frame {is_shifted}">
-                <div class="led-marquee-container">
-                    <div class="led-text">CODETOOPIA VAULT - EXTRACTING CLIMATE CORE - SECTOR STATUS: ACTIVE</div>
-                </div>
-                <div class="glass-chamber">
-                    <div class="claw-string" style="height: {claw_height};">
-                        <div class="claw-head">🏗️</div>
-                    </div>
-                    <div style="position:absolute; bottom:20px; width:100%; display:flex; justify-content:center; gap:10px;">
-                        {" ".join(["<span style='font-size:30px;'>💎</span>" for _ in range(len(st.session_state.inventory))])}
-                    </div>
-                </div>
-                <div style="position:absolute; bottom:40px; width:100%; text-align:center; color:#444;">
-                    [ {len(st.session_state.inventory)} CORES REMAINING ]
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+    col_left, col_right = st.columns([1, 1.2])
 
-        if not st.session_state.won_item and len(st.session_state.inventory) > 0:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("ACTIVATE CLAW", use_container_width=True):
-                st.session_state.claw_active = True
-                st.rerun()
-            
-            if st.session_state.claw_active:
-                time.sleep(1) # Drop time
-                st.session_state.won_item = st.session_state.inventory.pop(random.randrange(len(st.session_state.inventory)))
-                st.session_state.claw_active = False
-                st.rerun()
-
-    with col_info:
-        if st.session_state.won_item:
-            item = st.session_state.won_item
+    with col_left:
+        st.markdown("<h3 style='font-family:Orbitron; color:#ff0055;'>SELECT DATA CORE</h3>", unsafe_allow_html=True)
+        for name in continents.keys():
             st.markdown(f"""
-                <div class="prize-card">
-                    <h2 style="font-family:Orbitron; margin:0;">{item['name']}</h2>
-                    <p style="color:#ff0055; font-size:0.8rem;">CORE EXTRACTION SUCCESSFUL</p>
-                    <img src="{item['src']}" style="width:100%; border-radius:10px; margin:15px 0;">
+                <div class="data-pod">
+                    <span style="font-family:Orbitron; font-weight:bold; color:white;">{name}</span><br>
+                    <span style="color:#00f2ff; font-size:0.8rem;">STATUS: READY // TRANSMISSION SECURE</span>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button("DECODE DATA"):
-                st.session_state.page = 'lab'
+            if st.button(f"CONNECT TO {name}", use_container_width=True):
+                st.session_state.active_target = name
                 st.rerun()
 
-# --- PAGE 3: RESEARCH LAB ---
-elif st.session_state.page == 'lab':
-    st.markdown(f"<h1 style='font-family:Orbitron; text-align:center;'>LAB: {st.session_state.won_item['name']}</h1>", unsafe_allow_html=True)
-    st.line_chart([random.random() for _ in range(40)])
-    if st.button("RETURN TO VAULT"):
-        st.session_state.won_item = None
-        st.session_state.page = 'vault'
+    with col_right:
+        if st.session_state.active_target:
+            target = st.session_state.active_target
+            data = continents[target]
+            st.markdown(f"""
+                <div class="hologram-display">
+                    <h2 style="font-family:Orbitron; margin:0; color:#ff0055;">{target}</h2>
+                    <p style="color:#888; margin-bottom:15px;">ANOMALY DETECTED: {data['temp']}</p>
+                    <img src="{data['img']}" style="width:100%; border-radius:8px; margin-bottom:20px;">
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"OPEN {target} RESEARCH LAB", use_container_width=True):
+                st.session_state.step = 'lab'
+                st.rerun()
+        else:
+            st.markdown("""
+                <div style="border:1px dashed #444; border-radius:15px; height:400px; display:flex; align-items:center; justify-content:center; color:#444;">
+                    <h3>[ AWAITING CORE SELECTION ]</h3>
+                </div>
+            """, unsafe_allow_html=True)
+
+# --- LAB PAGE ---
+elif st.session_state.step == 'lab':
+    st.markdown(f"<h1 style='font-family:Orbitron; text-align:center;'>LAB: {st.session_state.active_target}</h1>", unsafe_allow_html=True)
+    st.markdown("---")
+    
+    # Biểu đồ chuẩn môn học
+    st.subheader("Temperature Anomaly Over Time (1850 - 2026)")
+    st.line_chart([random.uniform(1.0, 2.5) for _ in range(50)])
+    
+    if st.button("RETURN TO MAIN CONSOLE"):
+        st.session_state.active_target = None
+        st.session_state.step = 'console'
         st.rerun()
