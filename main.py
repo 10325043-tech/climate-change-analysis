@@ -23,16 +23,15 @@ st.markdown("""
         font-family: 'Share Tech Mono', 'Courier New', monospace;
     }
     
-    /* Style the Streamlit columns to look like HUD panels */
+    /* Panel border decoration mimicking game HUDs */
     [data-testid="column"] {
-        background: rgba(0, 20, 40, 0.4);
-        border: 1px solid rgba(0, 243, 255, 0.3);
-        border-radius: 5px;
-        padding: 10px;
-        box-shadow: 0 0 15px rgba(0, 243, 255, 0.05);
+        background: rgba(0, 15, 30, 0.4);
+        border: 1px solid rgba(0, 243, 255, 0.25);
+        border-radius: 6px;
+        padding: 15px;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.05), inset 0 0 10px rgba(0, 243, 255, 0.05);
     }
     
-    /* Hide top padding */
     .block-container {
         padding-top: 2rem;
         max-width: 95%;
@@ -41,53 +40,55 @@ st.markdown("""
     .hud-title {
         text-align: center;
         color: #00f3ff;
-        font-size: 24px;
-        letter-spacing: 4px;
-        margin-bottom: 20px;
-        text-shadow: 0 0 10px #00f3ff;
+        font-size: 28px;
+        letter-spacing: 6px;
+        margin-bottom: 25px;
+        text-shadow: 0 0 12px #00f3ff;
     }
 
     .critical-text {
         color: #ff0055;
         text-align: center;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
         letter-spacing: 3px;
         text-shadow: 0 0 15px #ff0055;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     .terminal-small {
-        font-size: 12px;
+        font-size: 13px;
         color: #00f3ff;
-        line-height: 1.4;
+        line-height: 1.5;
+        letter-spacing: 1px;
     }
 
     .directive-body {
         font-size: 15px;
         color: #b3ecff;
         text-align: justify;
-        line-height: 1.6;
+        line-height: 1.7;
         margin: 20px 0;
+        letter-spacing: 0.5px;
     }
 
-    /* CSS RADAR ANIMATION */
+    /* SYSTEM RADAR ANIMATION */
     .radar-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 30px;
-        margin-bottom: 20px;
+        margin-top: 25px;
+        margin-bottom: 25px;
     }
     .radar {
-        width: 250px;
-        height: 250px;
+        width: 220px;
+        height: 220px;
         border-radius: 50%;
-        border: 2px solid rgba(0, 243, 255, 0.5);
-        background: radial-gradient(circle at center, rgba(0,243,255,0.1) 0%, rgba(0,0,0,0) 70%);
+        border: 2px solid rgba(0, 243, 255, 0.4);
+        background: radial-gradient(circle at center, rgba(0,243,255,0.08) 0%, rgba(0,0,0,0) 75%);
         position: relative;
         overflow: hidden;
-        box-shadow: 0 0 30px rgba(0,243,255,0.2) inset;
+        box-shadow: 0 0 20px rgba(0,243,255,0.15) inset;
     }
     .radar::before {
         content: '';
@@ -98,16 +99,16 @@ st.markdown("""
         bottom: 50%;
         left: 50%;
         transform-origin: 0% 100%;
-        background: linear-gradient(90deg, rgba(0,243,255,0) 0%, rgba(0,243,255,0.5) 100%);
+        background: linear-gradient(90deg, rgba(0,243,255,0) 0%, rgba(0,243,255,0.4) 100%);
         border-right: 2px solid #00f3ff;
-        animation: radar-spin 3s linear infinite;
+        animation: radar-spin 4s linear infinite;
     }
     .radar-grid {
         position: absolute;
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 1px dashed rgba(0, 243, 255, 0.2);
+        border: 1px dashed rgba(0, 243, 255, 0.15);
         transform: scale(0.66);
     }
     .radar-grid-2 {
@@ -115,21 +116,21 @@ st.markdown("""
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 1px dashed rgba(0, 243, 255, 0.2);
+        border: 1px dashed rgba(0, 243, 255, 0.15);
         transform: scale(0.33);
     }
     .radar-crosshair {
         position: absolute;
         width: 100%;
         height: 1px;
-        background: rgba(0, 243, 255, 0.3);
+        background: rgba(0, 243, 255, 0.25);
         top: 50%;
     }
     .radar-crosshair-v {
         position: absolute;
         width: 1px;
         height: 100%;
-        background: rgba(0, 243, 255, 0.3);
+        background: rgba(0, 243, 255, 0.25);
         left: 50%;
     }
     @keyframes radar-spin {
@@ -137,20 +138,22 @@ st.markdown("""
         100% { transform: rotate(360deg); }
     }
 
+    /* Cyberpunk Tactical Button style */
     div.stButton > button {
         width: 100%;
-        background: rgba(0, 243, 255, 0.1) !important;
+        background: rgba(0, 243, 255, 0.05) !important;
         color: #00f3ff !important;
         border: 1px solid #00f3ff !important;
-        padding: 10px !important;
+        padding: 12px !important;
         font-family: 'Share Tech Mono', monospace !important;
         font-size: 18px !important;
-        letter-spacing: 2px !important;
+        letter-spacing: 3px !important;
         transition: 0.3s;
     }
     div.stButton > button:hover {
-        background: rgba(0, 243, 255, 0.4) !important;
-        box-shadow: 0 0 20px #00f3ff !important;
+        background: rgba(0, 243, 255, 0.3) !important;
+        box-shadow: 0 0 25px rgba(0, 243, 255, 0.6) !important;
+        color: #ffffff !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -162,11 +165,10 @@ def create_wireframe_globe():
         geo=dict(
             projection_type="orthographic",
             showcoastlines=True,
-            coastlinecolor="rgba(0, 243, 255, 0.6)",
+            coastlinecolor="rgba(0, 243, 255, 0.5)",
             showland=True,
-            landcolor="rgba(0, 0, 0, 0)",
-            showocean=True,
-            oceancolor="rgba(0, 0, 0, 0)",
+            landcolor="rgba(0, 30, 60, 0.2)",
+            showocean=False,
             showlakes=False,
             bgcolor="rgba(0,0,0,0)",
             framecolor="rgba(0,0,0,0)"
@@ -174,22 +176,29 @@ def create_wireframe_globe():
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=0, r=0, t=0, b=0),
-        height=220
+        height=200
     )
     return fig
 
-def create_hud_chart(color):
-    x = np.linspace(0, 100, 50)
-    y = np.sin(x/10) + np.random.normal(0, 0.2, 50) + (x/50)
+def create_hud_chart(color, seed_val):
+    np.random.seed(seed_val)
+    x = np.linspace(0, 100, 40)
+    y = np.sin(x/8) + np.random.normal(0, 0.15, 40) + (x/60)
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', line=dict(color=color, width=2), fill='tozeroy', fillcolor=f'rgba{tuple(list(int(color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4)) + [0.2])}'))
+    fig.add_trace(go.Scatter(
+        x=x, y=y, 
+        mode='lines', 
+        line=dict(color=color, width=1.5), 
+        fill='tozeroy', 
+        fillcolor=f'rgba{tuple(list(int(color.lstrip("#")[i:i+2], 16) for i in (0, 2, 4)) + [0.1])}'
+    ))
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=False, visible=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(0,243,255,0.1)', zeroline=False, tickfont=dict(color='#00f3ff', size=9)),
-        margin=dict(l=20, r=5, t=5, b=5),
-        height=150,
+        yaxis=dict(showgrid=True, gridcolor='rgba(0,243,255,0.08)', zeroline=False, tickfont=dict(color='#00f3ff', size=9)),
+        margin=dict(l=15, r=5, t=5, b=5),
+        height=130,
         showlegend=False
     )
     return fig
@@ -198,48 +207,55 @@ def create_hud_chart(color):
 if "page" not in st.session_state:
     st.session_state.page = "INTRO"
 
-# --- PAGE 1: FULL HUD ---
+# =====================================================================
+# STAGE 1: INTRO HUD SCREEN
+# =====================================================================
 if st.session_state.page == "INTRO":
     st.markdown('<div class="hud-title">OMNISCIENCE SYSTEM</div>', unsafe_allow_html=True)
     
-    # 3-COLUMN LAYOUT EXACTLY LIKE THE IMAGE
-    col_left, col_center, col_right = st.columns([1.2, 2.5, 1.2], gap="medium")
+    # 3-Panel Layout
+    col_left, col_center, col_right = st.columns([1.3, 2.4, 1.3], gap="medium")
     
-    # --- LEFT PANEL: GLOBES ---
+    # --- LEFT PANEL ---
     with col_left:
-        st.markdown('<div class="terminal-small">ATMOSPHERIC SLOTS</div>', unsafe_allow_html=True)
-        st.plotly_chart(create_wireframe_globe(), use_container_width=True, config={'displayModeBar': False})
-        st.markdown('<div class="terminal-small" style="text-align:right;">BIOSPHERE SCAN</div>', unsafe_allow_html=True)
-        st.plotly_chart(create_wireframe_globe(), use_container_width=True, config={'displayModeBar': False})
+        st.markdown('<div class="terminal-small">⚙️ ATMOSPHERIC SLOTS</div>', unsafe_allow_html=True)
+        st.plotly_chart(create_wireframe_globe(), use_container_width=True, config={'displayModeBar': False}, key="globe_slot_1")
+        
+        st.markdown('<div class="terminal-small">🛰️ BIOSPHERE SCAN LAYER</div>', unsafe_allow_html=True)
+        st.plotly_chart(create_wireframe_globe(), use_container_width=True, config={'displayModeBar': False}, key="globe_slot_2")
+        
         st.markdown("""
-        <div class="terminal-small">
-        DATANODE_MECH: 50X<br>
-        SYSTEM_ID: 9C0000X<br>
-        SEC_LVL: ALPHA-74
+        <div class="terminal-small" style="color: rgba(0, 243, 255, 0.6); border-top: 1px solid rgba(0,243,255,0.1); padding-top: 10px; margin-top: 10px;">
+        DATANODE_MECH: 90X<br>
+        SYSTEM_ID: SC0002K<br>
+        SEC_LEVEL: ALFA-74<br>
+        UPLINK_INDEX: COM-4
         </div>
         """, unsafe_allow_html=True)
 
-    # --- CENTER PANEL: DIRECTIVE & RADAR ---
+    # --- CENTER PANEL ---
     with col_center:
         st.markdown("""
-        <div class="terminal-small">
+        <div class="terminal-small" style="color: #00f3ff; opacity: 0.85;">
         [BOOT]: Establishing deep-space uplink with OMNISCIENCE Recon Satellite...<br>
         [CONNECT]: Quantum data link synchronized with Ark Ship Core v7.4...<br>
         [DECRYPT]: Matrix HUD layout deciphered...
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("<hr style='border:1px solid rgba(0,243,255,0.2);'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border:1px dashed rgba(0,243,255,0.2); margin:15px 0;'>", unsafe_allow_html=True)
         
         st.markdown('<div class="critical-text">CRITICAL ENVELOPE: HIGH COUNCIL DIRECTIVE</div>', unsafe_allow_html=True)
         
         st.markdown("""
         <div class="directive-body">
-        The Mother Planet has remained abandoned for over a century following the catastrophic global thermal cascade. Ark Ship life support reserves are currently depleting. Your mandate is to operationalize the Omniscience Long-Range Biosphere Scanner, analyze historical planetary degradation vectors, and locate viable sectors for atmospheric re-colonization.
+        The Mother Planet has remained abandoned for over a century following the catastrophic global thermal cascade. 
+        Ark Ship life support reserves are currently depleting. 
+        Your mandate is to operationalize the Omniscience Long-Range Biosphere Scanner, analyze historical planetary degradation vectors, and locate viable sectors for atmospheric re-colonization.
         </div>
         """, unsafe_allow_html=True)
         
-        # The Custom CSS Radar
+        # Animated CSS Radar Display
         st.markdown("""
         <div class="radar-container">
             <div class="radar">
@@ -255,29 +271,32 @@ if st.session_state.page == "INTRO":
             st.session_state.page = "SECTOR"
             st.rerun()
 
-    # --- RIGHT PANEL: CHARTS ---
+    # --- RIGHT PANEL ---
     with col_right:
-        st.markdown('<div class="terminal-small">HISTORICAL CLIMATE DEGRADATION VECTOR</div>', unsafe_allow_html=True)
-        st.plotly_chart(create_hud_chart("#ff0055"), use_container_width=True, config={'displayModeBar': False})
+        st.markdown('<div class="terminal-small">📈 HISTORICAL CLIMATE DEGRADATION</div>', unsafe_allow_html=True)
+        st.plotly_chart(create_hud_chart("#ff0055", 42), use_container_width=True, config={'displayModeBar': False}, key="chart_right_1")
         
-        st.markdown('<div class="terminal-small">VIABLE SECTOR LOCATOR</div>', unsafe_allow_html=True)
-        st.plotly_chart(create_hud_chart("#00f3ff"), use_container_width=True, config={'displayModeBar': False})
+        st.markdown('<div class="terminal-small">🎯 VIABLE SECTOR LOCATOR</div>', unsafe_allow_html=True)
+        st.plotly_chart(create_hud_chart("#00f3ff", 24), use_container_width=True, config={'displayModeBar': False}, key="chart_right_2")
         
-        st.markdown('<div class="terminal-small">THERMAL ANOMALY TRACKER</div>', unsafe_allow_html=True)
-        st.plotly_chart(create_hud_chart("#00ff88"), use_container_width=True, config={'displayModeBar': False})
+        st.markdown('<div class="terminal-small">🔥 THERMAL CASCADE ANOMALY</div>', unsafe_allow_html=True)
+        st.plotly_chart(create_hud_chart("#00ff88", 99), use_container_width=True, config={'displayModeBar': False}, key="chart_right_3")
 
-    # --- BOTTOM LOG ---
-    st.markdown("<hr style='border:1px solid rgba(0,243,255,0.2);'>", unsafe_allow_html=True)
+    # --- FOOTER SYSTEM LOG ---
+    st.markdown("<hr style='border:1px solid rgba(0,243,255,0.15); margin-top:20px;'>", unsafe_allow_html=True)
     st.markdown("""
-    <div class="terminal-small">
-    [SYSTEM LOG]: Climate Vault database linked successfully. 577,462 environmental telemetry logs online.<br>
-    [STATUS]: WAITING FOR OFFICER INPUT...
+    <div class="terminal-small" style="opacity:0.7;">
+    [BOOT]: Establishing deep-space uplink with OMNISCIENCE Recon Satellite...<br>
+    [SYSTEM LOG]: Climate Vault database linked successfully. 577,462 environmental telemetry logs online.
     </div>
     """, unsafe_allow_html=True)
 
-# --- PAGE 2 ---
+# =====================================================================
+# STAGE 2: SECTOR SCANNING ACTIVE
+# =====================================================================
 elif st.session_state.page == "SECTOR":
     st.markdown('<div class="hud-title">SECTOR SCANNING ACTIVE</div>', unsafe_allow_html=True)
+    st.write("System online. Standby for target mapping.")
     if st.button("ABORT MISSION"):
         st.session_state.page = "INTRO"
         st.rerun()
