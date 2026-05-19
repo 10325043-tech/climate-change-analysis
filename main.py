@@ -13,104 +13,42 @@ if st.session_state.page == "WELCOME":
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
         
         .stApp {
-            background: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.7)), 
-                        url('https://images.unsplash.com/photo-1464802686167-b939a6910659?q=80&w=2070&auto=format&fit=crop');
+            background: linear-gradient(rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.4)), 
+                        url('https://images.unsplash.com/photo-1506318137071-a8e063b4aec0?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
         }
         
-        .hud-corner {
-            position: absolute;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            color: rgba(0, 255, 255, 0.6);
-            padding: 20px;
-            z-index: 100;
-        }
-        .tl { top: 10px; left: 10px; border-left: 1px solid #00ffff; border-top: 1px solid #00ffff; }
-        .tr { top: 10px; right: 10px; border-right: 1px solid #00ffff; border-top: 1px solid #00ffff; text-align: right; }
-        .bl { bottom: 10px; left: 10px; border-left: 1px solid #00ffff; border-bottom: 1px solid #00ffff; }
-        .br { bottom: 10px; right: 10px; border-right: 1px solid #00ffff; border-bottom: 1px solid #00ffff; text-align: right; }
-
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 85vh;
-            color: white;
-            text-align: center;
+        .main-wrapper {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 90vh; color: #ffffff; font-family: 'Orbitron', sans-serif;
         }
         
-        .group-name {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            letter-spacing: 8px;
-            color: #00ffff;
-            margin-bottom: 10px;
-        }
+        .title { font-size: 85px; letter-spacing: 25px; margin: 0; text-shadow: 0 0 30px rgba(0,255,255,0.5); }
+        .subtitle { font-size: 18px; letter-spacing: 12px; color: #94a3b8; margin-top: 15px; margin-bottom: 40px; }
         
-        .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 90px;
-            font-weight: 700;
-            letter-spacing: 20px;
-            margin: 0;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
-        }
+        .globe { width: 300px; height: 300px; margin-bottom: 40px; }
         
-        .subtitle {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 22px;
-            letter-spacing: 6px;
-            margin-top: 10px;
-            color: #94a3b8;
-        }
-
-        .globe-placeholder {
-            width: 280px;
-            height: 280px;
-            margin: 30px 0;
-            background: radial-gradient(circle, rgba(0, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-            border-radius: 50%;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
-        }
-
         div.stButton > button {
-            background: rgba(0, 255, 255, 0.1) !important;
+            background: transparent !important;
             color: #00ffff !important;
             border: 1px solid #00ffff !important;
-            padding: 15px 50px !important;
+            padding: 15px 60px !important;
             font-family: 'Share Tech Mono', monospace !important;
-            font-size: 20px !important;
-            letter-spacing: 4px !important;
-            transition: 0.3s !important;
-            text-transform: uppercase;
+            font-size: 18px !important;
+            letter-spacing: 6px !important;
+            transition: 0.4s !important;
         }
-        
-        div.stButton > button:hover {
-            background: #00ffff !important;
-            color: #020617 !important;
-            box-shadow: 0 0 30px #00ffff !important;
-        }
+        div.stButton > button:hover { background: #00ffff !important; color: #000 !important; }
         </style>
+    """, unsafe_allow_html=True)
 
-        <div class="hud-corner tl">SYSTEM: OMNISCIENCE<br>CORE_TEMP: 32.4°C</div>
-        <div class="hud-corner tr">UPLINK: SECURE<br>STATION: VALKYRIE_01</div>
-        <div class="hud-corner bl">THERMAL_DATA: ACTIVE<br>SCAN_FREQ: 44.1 GHZ</div>
-        <div class="hud-corner br">CODETOOPIA SYSTEMS<br>EST. 2026</div>
-
-        <div class="main-container">
-            <div class="group-name">CODETOOPIA SYSTEMS</div>
+    st.markdown("""
+        <div class="main-wrapper">
             <h1 class="title">CLIMATE VAULT</h1>
             <p class="subtitle">PLANETARY THERMAL FORENSICS</p>
-            <div class="globe-placeholder">
-                <img src="https://img.icons8.com/ios/150/00ffff/earth-globe.png" style="opacity: 0.6;">
-            </div>
+            <img src="https://img.icons8.com/ios/300/00ffff/earth-planet.png" class="globe">
         </div>
     """, unsafe_allow_html=True)
     
@@ -121,33 +59,24 @@ if st.session_state.page == "WELCOME":
             st.rerun()
 
 elif st.session_state.page == "ANALYSIS":
-    st.markdown("<style>.stApp {background: #020617; color: #f8fafc;}</style>", unsafe_allow_html=True)
-    st.title("CLIMATE VAULT // ANALYTICS INTERFACE")
+    st.markdown("<style>.stApp {background: #020617; color: #fff;}</style>", unsafe_allow_html=True)
+    st.title("THERMAL TELEMETRY ARCHIVE")
     
-    mock_data = {
-        'Continent': ['Asia', 'Asia', 'Asia', 'Europe', 'Europe', 'Africa', 'Americas'],
-        'Country': ['Vietnam', 'Japan', 'China', 'France', 'Germany', 'Egypt', 'Canada'],
-        'Year': [2020, 2021, 2022, 2020, 2021, 2022, 2023],
-        'Temperature': [28.5, 27.2, 29.1, 18.3, 17.8, 31.5, 5.2]
-    }
-    df = pd.DataFrame(mock_data)
+    df = pd.DataFrame({
+        'Continent': ['Asia', 'Asia', 'Europe', 'Europe'],
+        'Country': ['Vietnam', 'Japan', 'France', 'Germany'],
+        'Year': [2020, 2021, 2020, 2021],
+        'Temperature': [28.5, 27.2, 18.3, 17.8]
+    })
 
     st.sidebar.markdown("### MISSION CONTROLS")
+    cont = st.sidebar.selectbox("CONTINENT", df['Continent'].unique())
+    coun = st.sidebar.selectbox("NATION", df[df['Continent'] == cont]['Country'].unique())
     
-    selected_continent = st.sidebar.selectbox("SELECT CONTINENT", df['Continent'].unique())
-    
-    filtered_continent = df[df['Continent'] == selected_continent]
-    selected_country = st.sidebar.selectbox("SELECT NATION", filtered_continent['Country'].unique())
-    
-    year_range = st.sidebar.slider("TEMPORAL RANGE", 1990, 2026, (2020, 2024))
-
-    st.subheader(f"THERMAL TELEMETRY: {selected_country.upper()}")
-    
-    plot_df = filtered_continent[filtered_continent['Country'] == selected_country]
-    fig = px.line(plot_df, x='Year', y='Temperature', markers=True, template="plotly_dark")
+    fig = px.line(df[df['Country'] == coun], x='Year', y='Temperature', template="plotly_dark")
     fig.update_traces(line_color='#00ffff')
     st.plotly_chart(fig, use_container_width=True)
     
-    if st.sidebar.button("TERMINATE SESSION"):
+    if st.sidebar.button("EXIT MISSION"):
         st.session_state.page = "WELCOME"
         st.rerun()
