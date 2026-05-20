@@ -4,57 +4,67 @@ import plotly.express as px
 
 st.set_page_config(page_title="CLIMATE VAULT", layout="wide", initial_sidebar_state="collapsed")
 
-if "page" not in st.session_state:
-    st.session_state.page = "WELCOME"
+# Thiết lập kiểu dáng chuyên nghiệp bằng CSS
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    
+    .stApp { background-color: #050505; color: #00f2ff; font-family: 'Orbitron', sans-serif; }
+    
+    /* Khung viền HUD 4 góc */
+    .hud-box {
+        position: absolute; border: 1px solid #00f2ff; padding: 15px;
+        background: rgba(0, 242, 255, 0.05); font-size: 11px;
+    }
+    .top-left { top: 20px; left: 20px; }
+    .top-right { top: 20px; right: 20px; }
+    .bottom-left { bottom: 20px; left: 20px; }
+    .bottom-right { bottom: 20px; right: 20px; }
+    
+    /* Tiêu đề chính */
+    .hero { text-align: center; margin-top: 150px; }
+    .hero h1 { font-size: 80px; letter-spacing: 20px; color: #fff; text-shadow: 0 0 20px #00f2ff; }
+    .hero p { font-size: 18px; letter-spacing: 10px; color: #00f2ff; }
+    
+    /* Nút bấm */
+    div.stButton > button {
+        background: transparent; border: 2px solid #00f2ff; color: #00f2ff;
+        padding: 15px 40px; font-weight: bold; letter-spacing: 5px; transition: 0.3s;
+    }
+    div.stButton > button:hover { background: #00f2ff; color: #000; }
+    </style>
+""", unsafe_allow_html=True)
 
-if st.session_state.page == "WELCOME":
-    st.markdown("""
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
-        .stApp {
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 70%);
-            color: white; font-family: 'Share Tech Mono', monospace;
-        }
-        .hud { position: absolute; border: 1px solid #fb923c; padding: 10px; font-size: 10px; color: #fb923c; }
-        .tl { top: 30px; left: 30px; } .tr { top: 30px; right: 30px; }
-        .bl { bottom: 30px; left: 30px; } .br { bottom: 30px; right: 30px; }
-        .main-ui { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; text-align: center; }
-        .title { font-family: 'Orbitron', sans-serif; font-size: 70px; letter-spacing: 15px; margin: 0; }
-        .subtitle { font-size: 16px; letter-spacing: 8px; color: #cbd5e1; margin-bottom: 40px; }
-        div.stButton > button {
-            background: transparent !important; border: 1px solid #fb923c !important; color: #fb923c !important;
-            padding: 12px 40px !important; font-size: 16px !important; letter-spacing: 4px !important;
-        }
-        </style>
-        <div class="hud tl">SYS_IDENT: OMNISCIENCE<br>PROTO_V: 9.12.0</div>
-        <div class="hud tr">UPLINK: ACTIVE<br>LOC: GEO_STATIONARY</div>
-        <div class="hud bl">CORE_TEMP: INCREASING<br>ANOMALY: DETECTED</div>
-        <div class="hud br">CODETOOPIA SYSTEMS<br>EST. 2026</div>
-    """, unsafe_allow_html=True)
+# Khởi tạo trang
+if "page" not in st.session_state: st.session_state.page = "HOME"
 
+if st.session_state.page == "HOME":
+    # Vẽ HUD bằng HTML
     st.markdown("""
-        <div class="main-ui">
-            <div style="color: #22d3ee; letter-spacing: 5px;">CODETOOPIA SYSTEMS</div>
-            <h1 class="title">CLIMATE VAULT</h1>
-            <p class="subtitle">PLANETARY THERMAL FORENSICS</p>
+        <div class="hud-box top-left">SYS_IDENT: OMNISCIENCE<br>STATUS: OPERATIONAL</div>
+        <div class="hud-box top-right">UPLINK: STABLE<br>ZONE: SECTOR_7</div>
+        <div class="hud-box bottom-left">CORE_TEMP: 42.4°C<br>ANOMALY: NONE</div>
+        <div class="hud-box bottom-right">CODETOOPIA<br>EST. 2026</div>
+        
+        <div class="hero">
+            <h1>CLIMATE VAULT</h1>
+            <p>PLANETARY THERMAL FORENSICS</p>
         </div>
     """, unsafe_allow_html=True)
-
+    
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("INITIALIZE ANALYSIS ->"):
+        if st.button("INITIALIZE ANALYSIS"):
             st.session_state.page = "ANALYSIS"
             st.rerun()
 
 elif st.session_state.page == "ANALYSIS":
-    st.markdown("<style>.stApp {background: #020617; color: white;}</style>", unsafe_allow_html=True)
-    st.title("THERMAL TELEMETRY ARCHIVE")
-    df = pd.DataFrame({'Continent': ['Asia', 'Europe'], 'Country': ['Vietnam', 'France'], 'Year': [2020, 2021], 'Temperature': [28.5, 18.3]})
-    cont = st.sidebar.selectbox("CONTINENT", df['Continent'].unique())
-    coun = st.sidebar.selectbox("NATION", df[df['Continent'] == cont]['Country'].unique())
-    fig = px.line(df[df['Country'] == coun], x='Year', y='Temperature', template="plotly_dark")
-    fig.update_traces(line_color='#fb923c')
+    st.subheader("TELEMETRY DATA FEED")
+    df = pd.DataFrame({'Time': ['08:00', '12:00', '16:00', '20:00'], 'Value': [24, 28, 32, 26]})
+    fig = px.line(df, x='Time', y='Value', template="plotly_dark")
+    fig.update_traces(line_color='#00f2ff', line_width=3)
     st.plotly_chart(fig, use_container_width=True)
-    if st.sidebar.button("EXIT MISSION"):
-        st.session_state.page = "WELCOME"
+    
+    if st.button("RETURN"):
+        st.session_state.page = "HOME"
         st.rerun()
