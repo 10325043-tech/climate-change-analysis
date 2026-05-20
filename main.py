@@ -4,67 +4,70 @@ import plotly.express as px
 
 st.set_page_config(page_title="CLIMATE VAULT", layout="wide", initial_sidebar_state="collapsed")
 
-# Thiết lập kiểu dáng chuyên nghiệp bằng CSS
+if "page" not in st.session_state:
+    st.session_state.page = "WELCOME"
+
+# --- CSS CORE ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
     
-    .stApp { background-color: #050505; color: #00f2ff; font-family: 'Orbitron', sans-serif; }
-    
-    /* Khung viền HUD 4 góc */
-    .hud-box {
-        position: absolute; border: 1px solid #00f2ff; padding: 15px;
-        background: rgba(0, 242, 255, 0.05); font-size: 11px;
+    /* NỀN KHÔNG GIAN SÂU (CSS THUẦN) */
+    .stApp {
+        background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 80%);
+        color: #e2e8f0; font-family: 'Share Tech Mono', monospace;
     }
-    .top-left { top: 20px; left: 20px; }
-    .top-right { top: 20px; right: 20px; }
-    .bottom-left { bottom: 20px; left: 20px; }
-    .bottom-right { bottom: 20px; right: 20px; }
     
-    /* Tiêu đề chính */
-    .hero { text-align: center; margin-top: 150px; }
-    .hero h1 { font-size: 80px; letter-spacing: 20px; color: #fff; text-shadow: 0 0 20px #00f2ff; }
-    .hero p { font-size: 18px; letter-spacing: 10px; color: #00f2ff; }
+    /* HUD 4 GÓC (CỐ ĐỊNH) */
+    .hud { position: absolute; border: 1px solid #fb923c; padding: 15px; color: #fb923c; font-size: 11px; z-index: 10; }
+    .tl { top: 40px; left: 40px; } .tr { top: 40px; right: 40px; }
+    .bl { bottom: 40px; left: 40px; } .br { bottom: 40px; right: 40px; }
     
-    /* Nút bấm */
+    /* TRUNG TÂM */
+    .center-ui { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh; text-align: center; }
+    .title { font-family: 'Orbitron', sans-serif; font-size: 75px; letter-spacing: 15px; margin: 0; color: #fff; }
+    .subtitle { font-size: 16px; letter-spacing: 8px; color: #cbd5e1; margin-bottom: 40px; }
+    
+    /* NÚT BẤM NEON */
     div.stButton > button {
-        background: transparent; border: 2px solid #00f2ff; color: #00f2ff;
-        padding: 15px 40px; font-weight: bold; letter-spacing: 5px; transition: 0.3s;
+        background: transparent !important; border: 1px solid #fb923c !important; 
+        color: #fb923c !important; padding: 15px 40px !important; 
+        font-size: 16px !important; letter-spacing: 4px !important;
+        transition: 0.3s !important;
     }
-    div.stButton > button:hover { background: #00f2ff; color: #000; }
+    div.stButton > button:hover { background: #fb923c !important; color: #020617 !important; }
     </style>
+
+    <div class="hud tl">SYS_IDENT: OMNISCIENCE<br>PROTO_V: 9.12.0</div>
+    <div class="hud tr">UPLINK: ACTIVE<br>LOC: GEO_STATIONARY</div>
+    <div class="hud bl">CORE_TEMP: INCREASING<br>ANOMALY: DETECTED</div>
+    <div class="hud br">CODETOOPIA SYSTEMS<br>EST. 2026</div>
 """, unsafe_allow_html=True)
 
-# Khởi tạo trang
-if "page" not in st.session_state: st.session_state.page = "HOME"
-
-if st.session_state.page == "HOME":
-    # Vẽ HUD bằng HTML
+# --- LOGIC ---
+if st.session_state.page == "WELCOME":
     st.markdown("""
-        <div class="hud-box top-left">SYS_IDENT: OMNISCIENCE<br>STATUS: OPERATIONAL</div>
-        <div class="hud-box top-right">UPLINK: STABLE<br>ZONE: SECTOR_7</div>
-        <div class="hud-box bottom-left">CORE_TEMP: 42.4°C<br>ANOMALY: NONE</div>
-        <div class="hud-box bottom-right">CODETOOPIA<br>EST. 2026</div>
-        
-        <div class="hero">
-            <h1>CLIMATE VAULT</h1>
-            <p>PLANETARY THERMAL FORENSICS</p>
+        <div class="center-ui">
+            <h1 class="title">CLIMATE VAULT</h1>
+            <p class="subtitle">PLANETARY THERMAL FORENSICS</p>
         </div>
     """, unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("INITIALIZE ANALYSIS"):
+        if st.button("INITIALIZE ANALYSIS ->"):
             st.session_state.page = "ANALYSIS"
             st.rerun()
 
 elif st.session_state.page == "ANALYSIS":
-    st.subheader("TELEMETRY DATA FEED")
-    df = pd.DataFrame({'Time': ['08:00', '12:00', '16:00', '20:00'], 'Value': [24, 28, 32, 26]})
-    fig = px.line(df, x='Time', y='Value', template="plotly_dark")
-    fig.update_traces(line_color='#00f2ff', line_width=3)
+    st.markdown("<style>.stApp {background: #020617;}</style>", unsafe_allow_html=True)
+    st.title("THERMAL TELEMETRY ARCHIVE")
+    
+    df = pd.DataFrame({'Year': [2020, 2021, 2022], 'Temp': [28.1, 29.5, 30.2]})
+    fig = px.line(df, x='Year', y='Temp', template="plotly_dark")
+    fig.update_traces(line_color='#fb923c', line_width=3)
     st.plotly_chart(fig, use_container_width=True)
     
-    if st.button("RETURN"):
-        st.session_state.page = "HOME"
+    if st.button("EXIT MISSION"):
+        st.session_state.page = "WELCOME"
         st.rerun()
