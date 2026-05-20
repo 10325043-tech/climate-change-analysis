@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title="CODETOOPIA // CLIMATE VAULT", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="CLIMATE VAULT", layout="wide", initial_sidebar_state="collapsed")
 
 if "page" not in st.session_state:
     st.session_state.page = "WELCOME"
@@ -10,33 +10,33 @@ if "page" not in st.session_state:
 if st.session_state.page == "WELCOME":
     st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
+        .stApp { background-color: #050505; }
         
-        .stApp {
-            background: url('https://i.imgur.com/G5yYn5V.jpeg') no-repeat center center fixed;
-            background-size: cover;
-            background-color: #020617;
+        /* Tao luoi grid bang CSS (khong can anh) */
+        .grid-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(45, 212, 191, 0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(45, 212, 191, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
         }
         
         .main-wrapper {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 90vh; color: #fff; font-family: 'Share Tech Mono', monospace;
+            position: relative; z-index: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; height: 80vh; color: #e2e8f0;
         }
         
-        .title { font-family: 'Orbitron', sans-serif; font-size: 80px; letter-spacing: 15px; margin: 0; }
-        .subtitle { font-size: 20px; letter-spacing: 8px; color: #cbd5e1; margin-bottom: 20px; }
+        .title { font-size: 70px; letter-spacing: 20px; font-weight: 800; color: #2dd4bf; margin: 0; }
+        .subtitle { font-size: 16px; letter-spacing: 10px; text-transform: uppercase; margin-bottom: 50px; }
         
         div.stButton > button {
-            background: transparent !important;
-            border: 1px solid #f97316 !important;
-            color: #f97316 !important;
-            padding: 15px 50px !important;
-            font-size: 18px !important;
-            letter-spacing: 6px !important;
-            transition: 0.3s !important;
+            background: transparent; border: 2px solid #2dd4bf; color: #2dd4bf;
+            padding: 15px 50px; font-weight: bold; letter-spacing: 3px;
         }
-        div.stButton > button:hover { background: #f97316 !important; color: #000 !important; }
+        div.stButton > button:hover { background: #2dd4bf; color: #050505; }
         </style>
+        
+        <div class="grid-bg"></div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
@@ -48,29 +48,16 @@ if st.session_state.page == "WELCOME":
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("INITIALIZE ANALYSIS ->"):
+        if st.button("INITIALIZE ANALYSIS"):
             st.session_state.page = "ANALYSIS"
             st.rerun()
 
 elif st.session_state.page == "ANALYSIS":
-    st.markdown("<style>.stApp {background: #020617; color: #fff;}</style>", unsafe_allow_html=True)
-    st.title("THERMAL TELEMETRY ARCHIVE")
-    
-    df = pd.DataFrame({
-        'Continent': ['Asia', 'Asia', 'Europe', 'Europe'],
-        'Country': ['Vietnam', 'Japan', 'France', 'Germany'],
-        'Year': [2020, 2021, 2020, 2021],
-        'Temperature': [28.5, 27.2, 18.3, 17.8]
-    })
-
-    st.sidebar.markdown("### MISSION CONTROLS")
-    cont = st.sidebar.selectbox("CONTINENT", df['Continent'].unique())
-    coun = st.sidebar.selectbox("NATION", df[df['Continent'] == cont]['Country'].unique())
-    
-    fig = px.line(df[df['Country'] == coun], x='Year', y='Temperature', template="plotly_dark")
-    fig.update_traces(line_color='#f97316')
+    st.title("DATA INTERFACE")
+    df = pd.DataFrame({'Year': [2020, 2021, 2022], 'Temp': [28, 29, 30]})
+    fig = px.line(df, x='Year', y='Temp', template="plotly_dark")
+    fig.update_traces(line_color='#2dd4bf')
     st.plotly_chart(fig, use_container_width=True)
-    
-    if st.sidebar.button("EXIT MISSION"):
+    if st.button("BACK"):
         st.session_state.page = "WELCOME"
         st.rerun()
