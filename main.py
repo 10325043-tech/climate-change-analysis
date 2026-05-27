@@ -81,7 +81,7 @@ if st.session_state.state == "HOME":
             st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:50px; font-size: 3.5rem;">CHỌN CHÂU LỤC</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:50px; font-size: 3.5rem;">CONTINENT SELECTION</h1>', unsafe_allow_html=True)
     
     continents = {
         "ASIA": "https://images.unsplash.com/photo-1535139262974-676fe33f5d0c",
