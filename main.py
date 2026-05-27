@@ -33,7 +33,6 @@ st.markdown("""
         text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
     }
     
-    /* Bigger Button */
     div.stButton > button {
         background: rgba(56, 189, 248, 0.1) !important;
         border: 2px solid #38bdf8 !important;
@@ -82,7 +81,7 @@ if st.session_state.state == "HOME":
             st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h2 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:40px;">ORBITAL SELECTION</h2>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:50px; font-size: 3.5rem;">CHỌN CHÂU LỤC</h1>', unsafe_allow_html=True)
     
     continents = {
         "ASIA": "https://images.unsplash.com/photo-1535139262974-676fe33f5d0c",
@@ -105,7 +104,7 @@ elif st.session_state.state == "SELECT":
 
 elif st.session_state.state == "VAULT":
     st.markdown(f'<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron;">VAULT: {st.session_state.target}</h1>', unsafe_allow_html=True)
-    st.markdown('<div style="text-align:center; padding:80px; border:2px solid #38bdf8; background:rgba(0,0,0,0.6);"><h2>TELEMETRY STREAM ACTIVE</h2></div>', unsafe_allow_html=True)
-    if st.button("RETURN TO ORBIT"):
+    st.markdown('<div style="text-align:center; padding:80px; border:2px solid #38bdf8; background:rgba(0,0,0,0.6);"><h2>STREAMING DATA...</h2></div>', unsafe_allow_html=True)
+    if st.button("RETURN TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
