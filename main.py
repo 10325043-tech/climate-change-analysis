@@ -47,9 +47,11 @@ if 'state' not in st.session_state: st.session_state.state = "HOME"
 
 if st.session_state.state == "HOME":
     st.markdown('<div class="hero-box"><div class="brand">CODETOOPIA</div><div class="neon-title">CLIMATE VAULT</div></div>', unsafe_allow_html=True)
-    if st.columns([1, 1, 1])[1].button("INITIALIZE SYSTEM", use_container_width=True):
-        st.session_state.state = "SELECT"
-        st.rerun()
+    c1, c2, c3 = st.columns([1, 1, 1])
+    with c2:
+        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+            st.session_state.state = "SELECT"
+            st.rerun()
 
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:50px; font-size: 3.5rem;">CONTINENT SELECTION</h1>', unsafe_allow_html=True)
@@ -65,7 +67,7 @@ elif st.session_state.state == "SELECT":
     for i, (name, url) in enumerate(continents.items()):
         with cols[i % 3]:
             st.markdown(f'<div class="card"><img src="{url}"></div>', unsafe_allow_html=True)
-            if st.button(name, key=name, use_container_width=True):
+            if st.button(f"{name}", key=name, use_container_width=True):
                 st.session_state.target = name
                 st.session_state.state = "VAULT"
                 st.rerun()
@@ -78,17 +80,19 @@ elif st.session_state.state == "VAULT":
     y_range = st.slider("SELECT TIME RANGE", int(df_c['Year'].min()), int(df_c['Year'].max()), (1900, 2013))
     df_f = df_c[(df_c['Year'] >= y_range[0]) & (df_c['Year'] <= y_range[1])]
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1.5, 1])
     with col1:
-        fig_m = px.choropleth(df_f.groupby('Country')['AverageTemperature'].mean().reset_index(), locations="Country", locationmode="country names", color="AverageTemperature", color_continuous_scale="RdYlBu_r")
-        fig_m.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"), margin=dict(l=0,r=0,t=0,b=0))
-        st.plotly_chart(fig_m, use_container_width=True)
+        fig_map = px.choropleth(df_f.groupby('Country')['AverageTemperature'].mean().reset_index(), 
+                                locations="Country", locationmode="country names", color="AverageTemperature", 
+                                scope=st.session_state.target.lower(), color_continuous_scale="RdYlBu_r")
+        fig_map.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"), margin=dict(l=0,r=0,t=0,b=0))
+        st.plotly_chart(fig_map, use_container_width=True)
     with col2:
         sel = st.multiselect("SELECT COUNTRIES", sorted(df_f['Country'].unique()))
         if sel:
-            fig_l = px.line(df_f[df_f['Country'].isin(sel)], x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
-            fig_l.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-            st.plotly_chart(fig_l, use_container_width=True)
+            fig_line = px.line(df_f[df_f['Country'].isin(sel)], x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
+            fig_line.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig_line, use_container_width=True)
             
     if st.button("RETURN TO SELECTION"):
         st.session_state.state = "SELECT"
