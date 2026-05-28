@@ -14,46 +14,12 @@ st.markdown("""
         background-position: center;
         background-attachment: fixed;
     }
-    .hero-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 60vh;
-        gap: 10px;
-    }
+    .hero-box { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 10px; }
     .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 15px; font-size: 1.2rem; }
-    .neon-title {
-        font-family: 'Orbitron';
-        font-size: 6.5rem;
-        color: #fff;
-        line-height: 0.9;
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
-    }
-    div.stButton > button {
-        background: rgba(56, 189, 248, 0.1) !important;
-        border: 2px solid #38bdf8 !important;
-        color: #fff !important;
-        padding: 20px 80px !important;
-        font-size: 1.8rem !important;
-        font-family: 'Orbitron', sans-serif !important;
-        letter-spacing: 5px !important;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
-    }
-    div.stButton > button:hover {
-        background: #38bdf8 !important;
-        color: #000 !important;
-        transform: scale(1.05);
-    }
-    .card { 
-        background: rgba(0, 0, 0, 0.4); 
-        padding: 0; 
-        border-radius: 15px; 
-        border: 2px solid rgba(56, 189, 248, 0.3); 
-        overflow: hidden;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+    .neon-title { font-family: 'Orbitron'; font-size: 6.5rem; color: #fff; line-height: 0.9; text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8; }
+    div.stButton > button { background: rgba(56, 189, 248, 0.1) !important; border: 2px solid #38bdf8 !important; color: #fff !important; padding: 20px 80px !important; font-size: 1.8rem !important; font-family: 'Orbitron', sans-serif !important; letter-spacing: 5px !important; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important; }
+    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); }
+    .card { background: rgba(0, 0, 0, 0.4); padding: 0; border-radius: 15px; border: 2px solid rgba(56, 189, 248, 0.3); overflow: hidden; cursor: pointer; transition: 0.3s; }
     .card:hover { border-color: #38bdf8; box-shadow: 0 0 20px #38bdf8; transform: scale(1.03); }
     .card img { width: 100%; height: 250px; object-fit: cover; }
     </style>
@@ -66,7 +32,7 @@ def load_data():
     df['Year'] = df['dt'].dt.year
     df = df.dropna(subset=['AverageTemperature'])
     
-    continent_map = {
+    mapping = {
         'ASIA': ['China', 'India', 'Japan', 'Vietnam', 'Thailand', 'Indonesia', 'South Korea', 'Russia', 'Pakistan', 'Bangladesh', 'Philippines'],
         'EUROPE': ['United Kingdom', 'France', 'Germany', 'Italy', 'Spain', 'Sweden', 'Norway', 'Poland', 'Netherlands', 'Belgium', 'Switzerland', 'Austria'],
         'AFRICA': ['Nigeria', 'Egypt', 'South Africa', 'Kenya', 'Morocco', 'Ethiopia', 'Algeria', 'Tanzania', 'Ghana', 'Sudan'],
@@ -74,22 +40,16 @@ def load_data():
         'SOUTH AMERICA': ['Brazil', 'Argentina', 'Colombia', 'Peru', 'Chile', 'Ecuador', 'Venezuela', 'Bolivia'],
         'OCEANIA': ['Australia', 'New Zealand', 'Fiji', 'Papua New Guinea']
     }
-    def get_continent(country):
-        for continent, countries in continent_map.items():
-            if country in countries: return continent
-        return 'OTHER'
-    df['Continent'] = df['Country'].apply(get_continent)
+    df['Continent'] = df['Country'].apply(lambda x: next((k for k, v in mapping.items() if x in v), 'OTHER'))
     return df
 
 if 'state' not in st.session_state: st.session_state.state = "HOME"
 
 if st.session_state.state == "HOME":
     st.markdown('<div class="hero-box"><div class="brand">CODETOOPIA</div><div class="neon-title">CLIMATE VAULT</div></div>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 1, 1])
-    with c2:
-        if st.button("INITIALIZE SYSTEM", use_container_width=True):
-            st.session_state.state = "SELECT"
-            st.rerun()
+    if st.columns([1, 1, 1])[1].button("INITIALIZE SYSTEM", use_container_width=True):
+        st.session_state.state = "SELECT"
+        st.rerun()
 
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:50px; font-size: 3.5rem;">CONTINENT SELECTION</h1>', unsafe_allow_html=True)
@@ -105,35 +65,31 @@ elif st.session_state.state == "SELECT":
     for i, (name, url) in enumerate(continents.items()):
         with cols[i % 3]:
             st.markdown(f'<div class="card"><img src="{url}"></div>', unsafe_allow_html=True)
-            if st.button(f"{name}", key=name, use_container_width=True):
+            if st.button(name, key=name, use_container_width=True):
                 st.session_state.target = name
                 st.session_state.state = "VAULT"
                 st.rerun()
-            st.write("")
 
 elif st.session_state.state == "VAULT":
     df = load_data()
-    df_f = df[df['Continent'] == st.session_state.target]
+    df_c = df[df['Continent'] == st.session_state.target]
     st.markdown(f'<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron;">VAULT: {st.session_state.target}</h1>', unsafe_allow_html=True)
     
-    y_min, y_max = int(df_f['Year'].min()), int(df_f['Year'].max())
-    y_range = st.slider("SELECT TIME RANGE", y_min, y_max, (y_min, y_max))
-    df_filtered = df_f[(df_f['Year'] >= y_range[0]) & (df_f['Year'] <= y_range[1])]
+    y_range = st.slider("SELECT TIME RANGE", int(df_c['Year'].min()), int(df_c['Year'].max()), (1900, 2013))
+    df_f = df_c[(df_c['Year'] >= y_range[0]) & (df_c['Year'] <= y_range[1])]
     
-    c1, c2 = st.columns([1, 1])
-    with c1:
-        fig_map = px.choropleth(df_filtered.groupby('Country')['AverageTemperature'].mean().reset_index(), 
-                                locations="Country", locationmode="country names", color="AverageTemperature", 
-                                color_continuous_scale="RdYlBu_r")
-        fig_map.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"), margin=dict(l=0,r=0,t=0,b=0))
-        st.plotly_chart(fig_map, use_container_width=True)
-    with c2:
+    col1, col2 = st.columns(2)
+    with col1:
+        fig_m = px.choropleth(df_f.groupby('Country')['AverageTemperature'].mean().reset_index(), locations="Country", locationmode="country names", color="AverageTemperature", color_continuous_scale="RdYlBu_r")
+        fig_m.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"), margin=dict(l=0,r=0,t=0,b=0))
+        st.plotly_chart(fig_m, use_container_width=True)
+    with col2:
         sel = st.multiselect("SELECT COUNTRIES", sorted(df_f['Country'].unique()))
         if sel:
             fig_l = px.line(df_f[df_f['Country'].isin(sel)], x="Year", y="AverageTemperature", color="Country", template="plotly_dark")
             fig_l.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig_l, use_container_width=True)
-    
+            
     if st.button("RETURN TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
