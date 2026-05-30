@@ -1,91 +1,83 @@
 import streamlit as st
 
-# Set page layout to wide to utilize full screen
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
-# CSS styling for Sci-Fi Console feel
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
     .stApp {
-        background: linear-gradient(rgba(0, 10, 20, 0.7), rgba(0, 10, 20, 0.7)), 
+        background: linear-gradient(rgba(0, 10, 20, 0.5), rgba(0, 10, 20, 0.5)), 
                     url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
 
-    .console-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 90vh;
+    .main-wrapper {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100vh;
     }
 
-    .brand-id {
+    .glass-box {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        padding: 60px;
+        text-align: center;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        margin-bottom: 40px;
+    }
+
+    .neon-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 5rem;
+        color: #fff;
+        text-transform: uppercase;
+        margin: 0;
+        text-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8, 0 0 40px #38bdf8;
+    }
+
+    .sub-text {
         font-family: 'Orbitron', sans-serif;
         color: #38bdf8;
-        font-size: 0.8rem;
-        letter-spacing: 0.3rem;
-        margin-bottom: 20px;
-    }
-
-    .main-terminal {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #38bdf8;
-        padding: 40px;
-        text-align: center;
-        width: 600px;
-    }
-
-    .title-text {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 3.5rem;
-        color: white;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-    }
-
-    .status-bar {
-        height: 2px;
-        background: #38bdf8;
-        width: 100%;
-        margin: 20px 0;
+        letter-spacing: 5px;
+        margin-top: 10px;
     }
 
     div.stButton > button {
-        background: transparent !important;
-        border: 1px solid #38bdf8 !important;
-        color: #38bdf8 !important;
+        background: rgba(56, 189, 248, 0.1) !important;
+        border: 2px solid #38bdf8 !important;
+        color: #fff !important;
         font-family: 'Orbitron', sans-serif !important;
-        padding: 10px 30px !important;
-        transition: 0.3s !important;
+        font-size: 1.5rem !important;
+        padding: 20px 60px !important;
+        transition: 0.4s !important;
+        border-radius: 10px !important;
     }
 
     div.stButton > button:hover {
         background: #38bdf8 !important;
-        color: black !important;
+        color: #000 !important;
+        box-shadow: 0 0 30px #38bdf8 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Application logic
 if 'state' not in st.session_state: st.session_state.state = "HOME"
 
 if st.session_state.state == "HOME":
     st.markdown("""
-        <div class="console-wrapper">
-            <div class="brand-id">CODETOOPIA | CLIMATE INTELLIGENCE DIVISION</div>
-            <div class="main-terminal">
-                <div class="title-text">CLIMATE VAULT</div>
-                <div class="status-bar"></div>
-                <p style="color: #94a3b8; font-family: 'Rajdhani';">SYSTEM OPERATIONAL. AWAITING ACCESS PROTOCOL.</p>
+        <div class="main-wrapper">
+            <div class="glass-box">
+                <h1 class="neon-title">CLIMATE VAULT</h1>
+                <div class="sub-text">PLANETARY CLIMATE INTELLIGENCE SYSTEM</div>
             </div>
     """, unsafe_allow_html=True)
     
-    if st.button("INITIALIZE ACCESS"):
+    if st.button("INITIALIZE SYSTEM"):
         st.session_state.state = "SELECT"
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
