@@ -38,12 +38,17 @@ st.markdown("""
         background: #38bdf8 !important; color: #000 !important; transform: scale(1.05);
     }
 
-    .sector-card {
-        border: 2px solid #38bdf8;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 10px;
-        margin: 10px;
+    .grid-container {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 25px; padding: 40px; max-width: 1200px; margin: auto;
     }
+    .sector-node {
+        background: rgba(0, 20, 40, 0.7); border: 1px solid #38bdf8;
+        padding: 40px; text-align: center; transition: 0.3s;
+    }
+    .sector-node:hover { background: rgba(56, 189, 248, 0.2); box-shadow: 0 0 20px #38bdf8; }
+    .title-node { font-family: 'Orbitron'; color: #38bdf8; font-size: 1.4rem; margin-bottom: 15px; }
+    .status-node { font-family: 'Courier New'; color: #fff; font-size: 0.9rem; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -51,39 +56,35 @@ if 'state' not in st.session_state:
     st.session_state.state = "HOME"
 
 if st.session_state.state == "HOME":
-    st.markdown('''
+    st.markdown("""
         <div class="hero-box">
             <div class="brand">CODETOOPIA</div>
             <div class="neon-title">CLIMATE VAULT</div>
         </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     c1, c2, c3 = st.columns([1, 1, 1])
-    if c2.button("INITIALIZE SYSTEM", use_container_width=True):
-        st.session_state.state = "SELECT"
-        st.rerun()
+    with c2:
+        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+            st.session_state.state = "SELECT"
+            st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron; margin-bottom:40px;">SELECT SECTOR</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; color:#fff; font-family:Orbitron; margin-bottom:30px;">SELECT SECTOR</h1>', unsafe_allow_html=True)
     
-    sectors = {
-        "ASIA": "https://images.unsplash.com/photo-1535139262974-676fe33f5d0c",
-        "EUROPE": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
-        "AFRICA": "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e",
-        "NORTH AMERICA": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29",
-        "SOUTH AMERICA": "https://images.unsplash.com/photo-1526779233959-1e3595679c65",
-        "OCEANIA": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be"
-    }
+    st.markdown('<div class="grid-container">', unsafe_allow_html=True)
+    sectors = ["ASIA", "EUROPE", "AFRICA", "NORTH AMERICA", "SOUTH AMERICA", "OCEANIA"]
     
-    cols = st.columns(3)
-    for i, (name, url) in enumerate(sectors.items()):
-        with cols[i % 3]:
-            st.markdown(f'''
-                <div class="sector-card">
-                    <img src="{url}" style="width:100%; height:200px; object-fit:cover;">
-                </div>
-            ''', unsafe_allow_html=True)
-            if st.button(f"ACTIVATE {name}", key=name, use_container_width=True):
-                st.session_state.target = name
-                st.session_state.state = "VAULT"
-                st.rerun()
+    for sector in sectors:
+        st.markdown(f'''
+            <div class="sector-node">
+                <div class="title-node">{sector}</div>
+                <div class="status-node">ID: {sector[:3].upper()}-SEC</div>
+                <div class="status-node">STATUS: READY</div>
+            </div>
+        ''', unsafe_allow_html=True)
+        if st.button(f"ACTIVATE {sector}", key=sector, use_container_width=True):
+            st.session_state.target = sector
+            st.session_state.state = "VAULT"
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
