@@ -38,28 +38,21 @@ st.markdown("""
         background: #38bdf8 !important; color: #000 !important; transform: scale(1.05);
     }
 
-    .viewport {
-        height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-
-    .dashboard-grid {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-        width: 90%; max-width: 1200px;
+    .grid-container {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;
+        padding: 40px; height: 80vh;
     }
 
     .card {
-        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-        border: 1px solid rgba(56, 189, 248, 0.5); padding: 25px;
-        text-align: center; transition: 0.4s; cursor: pointer;
+        background: rgba(0, 20, 40, 0.7); border: 2px solid #38bdf8;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        transition: 0.4s; cursor: pointer;
     }
 
     .card:hover {
-        background: rgba(56, 189, 248, 0.2); border-color: #38bdf8;
-        transform: translateY(-10px); box-shadow: 0 0 20px #38bdf8;
+        background: rgba(56, 189, 248, 0.2); border-color: #fff;
+        box-shadow: 0 0 30px #38bdf8; transform: translateY(-10px);
     }
-
-    .temp-bar-bg { height: 8px; background: #222; margin: 15px 0; }
-    .temp-bar-fill { height: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -78,33 +71,23 @@ if st.session_state.state == "HOME":
         st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<div class="viewport">', unsafe_allow_html=True)
-    st.markdown('<h1 style="color:#38bdf8; font-family:Orbitron; margin-bottom:30px;">SECTOR ACCESS PORTAL</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; color:#fff; font-family:Orbitron;">SELECT SECTOR</h1>', unsafe_allow_html=True)
+    st.markdown('<div class="grid-container">', unsafe_allow_html=True)
     
-    sectors = {
-        "ASIA": 34, "EUROPE": 18, "AFRICA": 42, 
-        "NORTH AMERICA": 22, "SOUTH AMERICA": 29, "OCEANIA": 25
-    }
-
-    st.markdown('<div class="dashboard-grid">', unsafe_allow_html=True)
-    for name, temp in sectors.items():
-        color = "#ff4b4b" if temp > 30 else "#38bdf8"
-        card_html = f'''
-            <div class="card">
-                <h3 style="color:#fff; font-family:Orbitron; margin:0;">{name}</h3>
-                <div class="temp-bar-bg"><div class="temp-bar-fill" style="width:{temp*2}%; background:{color};"></div></div>
-                <p style="color:#aaa; font-family:monospace;">TEMP: {temp}°C | SECURE</p>
-            </div>
-        '''
-        st.markdown(card_html, unsafe_allow_html=True)
-        if st.button(f"ACTIVATE {name}", key=name, use_container_width=True):
-            st.session_state.target = name
+    sectors = ["ASIA", "EUROPE", "AFRICA", "NORTH AMERICA", "SOUTH AMERICA", "OCEANIA"]
+    
+    for s in sectors:
+        st.markdown(f'<div class="card">', unsafe_allow_html=True)
+        st.markdown(f'<h2 style="color:#38bdf8; font-family:Orbitron;">{s}</h2>', unsafe_allow_html=True)
+        if st.button(f"ACCESS {s}", key=s):
+            st.session_state.target = s
             st.session_state.state = "VAULT"
             st.rerun()
-    st.markdown('</div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<div class="hero-box"><h1 style="color:#38bdf8; font-family:Orbitron;">VAULT {st.session_state.target} ACTIVE</h1>', unsafe_allow_html=True)
-    if st.button("TERMINATE SESSION"):
+    st.markdown(f'<div class="hero-box"><h1 style="color:#38bdf8; font-family:Orbitron;">VAULT: {st.session_state.target}</h1>', unsafe_allow_html=True)
+    if st.button("RETURN"):
         st.session_state.state = "SELECT"
         st.rerun()
