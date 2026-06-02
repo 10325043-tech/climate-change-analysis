@@ -7,7 +7,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
         background-size: cover;
         background-position: center;
@@ -38,20 +38,28 @@ st.markdown("""
         background: #38bdf8 !important; color: #000 !important; transform: scale(1.05);
     }
 
-    .gauge-container {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; padding: 40px;
+    .viewport {
+        height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
 
-    .sector-card {
-        background: rgba(0, 20, 40, 0.85); border: 2px solid #38bdf8; padding: 30px;
-        transition: 0.3s; cursor: pointer; text-align: center;
+    .dashboard-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        width: 90%; max-width: 1200px;
     }
 
-    .sector-card:hover { border-color: #fff; box-shadow: 0 0 25px #38bdf8; transform: scale(1.02); }
+    .card {
+        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+        border: 1px solid rgba(56, 189, 248, 0.5); padding: 25px;
+        text-align: center; transition: 0.4s; cursor: pointer;
+    }
 
-    .temp-bar { height: 10px; background: #333; margin: 15px 0; border-radius: 5px; overflow: hidden; }
-    
-    .temp-fill { height: 100%; transition: 1s; }
+    .card:hover {
+        background: rgba(56, 189, 248, 0.2); border-color: #38bdf8;
+        transform: translateY(-10px); box-shadow: 0 0 20px #38bdf8;
+    }
+
+    .temp-bar-bg { height: 8px; background: #222; margin: 15px 0; }
+    .temp-bar-fill { height: 100%; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -64,47 +72,39 @@ if st.session_state.state == "HOME":
             <div class="neon-title">CLIMATE VAULT</div>
         </div>
     """, unsafe_allow_html=True)
-    
     c1, c2, c3 = st.columns([1, 1, 1])
     if c2.button("INITIALIZE SYSTEM", use_container_width=True):
         st.session_state.state = "SELECT"
         st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron;">SECTOR CLIMATE MONITOR</h1>', unsafe_allow_html=True)
+    st.markdown('<div class="viewport">', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:#38bdf8; font-family:Orbitron; margin-bottom:30px;">SECTOR ACCESS PORTAL</h1>', unsafe_allow_html=True)
     
-    data = {
-        "ASIA": {"temp": 34, "status": "CRITICAL"},
-        "EUROPE": {"temp": 18, "status": "STABLE"},
-        "AFRICA": {"temp": 42, "status": "DANGER"},
-        "NORTH AMERICA": {"temp": 22, "status": "STABLE"},
-        "SOUTH AMERICA": {"temp": 29, "status": "WARNING"},
-        "OCEANIA": {"temp": 25, "status": "STABLE"}
+    sectors = {
+        "ASIA": 34, "EUROPE": 18, "AFRICA": 42, 
+        "NORTH AMERICA": 22, "SOUTH AMERICA": 29, "OCEANIA": 25
     }
 
-    st.markdown('<div class="gauge-container">', unsafe_allow_html=True)
-    for name, info in data.items():
-        color = "#ff4b4b" if info['temp'] > 30 else "#38bdf8"
-        
-        # Clickable container simulation
+    st.markdown('<div class="dashboard-grid">', unsafe_allow_html=True)
+    for name, temp in sectors.items():
+        color = "#ff4b4b" if temp > 30 else "#38bdf8"
         card_html = f'''
-            <div class="sector-card">
-                <h2 style="color:#fff; font-family:Orbitron;">{name}</h2>
-                <div class="temp-bar"><div class="temp-fill" style="width:{info['temp']*2}%; background:{color};"></div></div>
-                <p style="color:#38bdf8; font-family:monospace;">TEMP: {info['temp']}°C | STATUS: {info['status']}</p>
+            <div class="card">
+                <h3 style="color:#fff; font-family:Orbitron; margin:0;">{name}</h3>
+                <div class="temp-bar-bg"><div class="temp-bar-fill" style="width:{temp*2}%; background:{color};"></div></div>
+                <p style="color:#aaa; font-family:monospace;">TEMP: {temp}°C | SECURE</p>
             </div>
         '''
         st.markdown(card_html, unsafe_allow_html=True)
-        
-        # Hidden button overlay to trigger state change
-        if st.button(f"ACCESS {name}", key=name, use_container_width=True):
+        if st.button(f"ACTIVATE {name}", key=name, use_container_width=True):
             st.session_state.target = name
             st.session_state.state = "VAULT"
             st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="text-align:center; color:#38bdf8; font-family:Orbitron;">SYSTEM VAULT: {st.session_state.target}</h1>', unsafe_allow_html=True)
-    if st.button("RETURN TO MONITOR"):
+    st.markdown(f'<div class="hero-box"><h1 style="color:#38bdf8; font-family:Orbitron;">VAULT {st.session_state.target} ACTIVE</h1>', unsafe_allow_html=True)
+    if st.button("TERMINATE SESSION"):
         st.session_state.state = "SELECT"
         st.rerun()
