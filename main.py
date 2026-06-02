@@ -7,43 +7,45 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
         background-size: cover; background-position: center; background-attachment: fixed;
     }
 
     .hero-box { 
-        display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh; 
     }
     
-    .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 15px; font-size: 1.2rem; margin-bottom: 10px; }
+    .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 20px; font-size: 1.5rem; margin-bottom: 15px; }
     
     .neon-title { 
-        font-family: 'Orbitron'; font-size: 7rem; color: #fff; 
-        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 40px #38bdf8, 0 0 80px #38bdf8;
+        font-family: 'Orbitron'; font-size: 8rem; color: #fff; 
+        text-shadow: 0 0 15px #fff, 0 0 30px #38bdf8, 0 0 60px #38bdf8;
         margin-bottom: 50px;
     }
 
-    div.stButton { display: flex; justify-content: center; }
+    div.stButton { display: flex; justify-content: center; width: 100%; }
     
     div.stButton > button { 
         background: rgba(56, 189, 248, 0.1) !important; border: 2px solid #38bdf8 !important; 
-        color: #fff !important; padding: 25px 90px !important; font-size: 2rem !important; 
-        font-family: 'Orbitron' !important; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
+        color: #fff !important; padding: 25px 80px !important; font-size: 2rem !important; 
+        font-family: 'Orbitron' !important; box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
         transition: 0.4s !important;
     }
-    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); box-shadow: 0 0 40px #38bdf8 !important; }
+    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); box-shadow: 0 0 50px #38bdf8 !important; }
 
-    .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 40px; }
+    .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; padding: 50px; }
     
-    .sector-node {
+    .sector-card {
         background: rgba(10, 25, 45, 0.6); border: 2px solid #38bdf8;
-        padding: 40px; text-align: center; cursor: pointer; transition: 0.4s;
-        border-radius: 5px;
+        padding: 40px; text-align: center; transition: 0.4s;
     }
-    .sector-node:hover { background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 30px #38bdf8; transform: translateY(-10px); }
-    .node-text { font-family: 'Orbitron'; color: #fff; font-size: 1.8rem; letter-spacing: 3px; }
-    .node-temp { font-family: 'Orbitron'; color: #38bdf8; font-size: 3.5rem; margin-top: 15px; }
+    .sector-card:hover { 
+        background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 40px #38bdf8; transform: translateY(-10px); 
+    }
+    
+    .card-name { font-family: 'Orbitron'; color: #fff; font-size: 2rem; letter-spacing: 5px; }
+    .card-temp { font-family: 'Orbitron'; color: #38bdf8; font-size: 4rem; margin-top: 20px; text-shadow: 0 0 10px #38bdf8; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -57,27 +59,24 @@ if st.session_state.state == "HOME":
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:50px;">SELECT SECTOR</h1>', unsafe_allow_html=True)
     st.markdown('<div class="grid-container">', unsafe_allow_html=True)
-    
     sectors = {"OCEANIA": "+34°C", "ASIA": "+34°C", "EUROPE": "+22°C", "AFRICA": "+28°C", "NORTH AMERICA": "+34.2°C", "SOUTH AMERICA": "+31.8°C"}
     
     for name, temp in sectors.items():
         st.markdown(f'''
-            <div class="sector-node" onclick="window.location.href='?nav={name}'">
-                <div class="node-text">{name}</div>
-                <div class="node-temp">{temp}</div>
+            <div class="sector-card">
+                <div class="card-name">{name}</div>
+                <div class="card-temp">{temp}</div>
             </div>
         ''', unsafe_allow_html=True)
-        # Hidden trigger logic
-        if st.button(f"SELECT {name}", key=name, help="Click to access"):
+        if st.button(f"ACCESS {name}", key=name):
             st.session_state.target = name
             st.session_state.state = "VAULT"
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron;">VAULT ACCESS: {st.session_state.target}</h1>', unsafe_allow_html=True)
-    if st.button("RETURN"):
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center; font-size:4rem;">SYSTEM BREACH: {st.session_state.target}</h1>', unsafe_allow_html=True)
+    if st.button("RETURN TO SCANNER"):
         st.session_state.state = "SELECT"
         st.rerun()
