@@ -7,62 +7,61 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
         background-size: cover;
+        background-position: center;
         background-attachment: fixed;
     }
 
     .hero-box {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 60vh; gap: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 60vh;
+        gap: 10px;
     }
 
-    .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 15px; font-size: 1.2rem; }
-    
+    .brand { 
+        font-family: 'Orbitron'; 
+        color: #38bdf8; 
+        letter-spacing: 15px; 
+        font-size: 1.2rem; 
+    }
+
     .neon-title {
-        font-family: 'Orbitron'; font-size: 6.5rem; color: #fff;
-        text-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+        font-family: 'Orbitron';
+        font-size: 6.5rem;
+        color: #fff;
+        line-height: 0.9;
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
     }
 
-    /* Grid Layout */
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        padding: 40px;
+    div.stButton > button {
+        background: rgba(56, 189, 248, 0.1) !important;
+        border: 2px solid #38bdf8 !important;
+        color: #fff !important;
+        padding: 20px 80px !important;
+        font-size: 1.8rem !important;
+        font-family: 'Orbitron', sans-serif !important;
+        letter-spacing: 5px !important;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
+        transition: 0.3s !important;
     }
 
-    .continent-card {
-        background: rgba(10, 20, 35, 0.85);
-        border: 2px solid rgba(56, 189, 248, 0.5);
-        padding: 30px;
-        text-align: center;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
+    div.stButton > button:hover {
+        background: #38bdf8 !important;
+        color: #000 !important;
+        transform: scale(1.05);
     }
-
-    .continent-card:hover {
-        border-color: #38bdf8;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
-        transform: translateY(-10px);
-    }
-
-    .card-title { font-family: 'Orbitron'; font-size: 1.8rem; color: #fff; margin-bottom: 5px; }
-    .card-temp { font-family: 'Orbitron'; font-size: 2.5rem; color: #38bdf8; }
-    .status-badge { font-family: 'Orbitron'; font-size: 0.8rem; letter-spacing: 2px; margin-top: 10px; }
-    
-    .status-critical { color: #ff4d4d; text-shadow: 0 0 8px #ff4d4d; animation: blink 1.5s infinite; }
-    .status-secure { color: #00ff9d; }
-
-    @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 """, unsafe_allow_html=True)
 
 if 'state' not in st.session_state: 
     st.session_state.state = "HOME"
 
+# TRANG 1: HOME
 if st.session_state.state == "HOME":
     st.markdown("""
         <div class="hero-box">
@@ -72,41 +71,42 @@ if st.session_state.state == "HOME":
     """, unsafe_allow_html=True)
     
     c1, c2, c3 = st.columns([1, 1, 1])
-    if c2.button("INITIALIZE SYSTEM", use_container_width=True):
-        st.session_state.state = "SELECT"
-        st.rerun()
+    with c2:
+        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+            st.session_state.state = "SELECT"
+            st.rerun()
 
+# TRANG 2: SELECT CONTINENT
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:50px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
     
-    # Data structure: Name, Temp, Status
     continents = [
-        ("OCEANIA", "+34°C", "SECURE"), ("ASIA", "+34°C", "CRITICAL"), ("EUROPE", "+22°C", "SECURE"),
-        ("AFRICA", "+28°C", "SECURE"), ("NORTH AMERICA", "+34.2°C", "SECURE"), ("SOUTH AMERICA", "+31.8°C", "SECURE")
+        ("OCEANIA", "+34°C", "SECURE", "#00ff9d"), 
+        ("ASIA", "+34°C", "CRITICAL", "#ff4d4d"), 
+        ("EUROPE", "+22°C", "SECURE", "#00ff9d"),
+        ("AFRICA", "+28°C", "SECURE", "#00ff9d"), 
+        ("NORTH AMERICA", "+34.2°C", "SECURE", "#00ff9d"), 
+        ("SOUTH AMERICA", "+31.8°C", "SECURE", "#00ff9d")
     ]
     
-    st.markdown('<div class="grid-container">', unsafe_allow_html=True)
     cols = st.columns(3)
-    for i, (name, temp, status) in enumerate(continents):
-        status_class = "status-critical" if status == "CRITICAL" else "status-secure"
-        
+    for i, (name, temp, status, color) in enumerate(continents):
         with cols[i % 3]:
-            st.markdown(f'''
-                <div class="continent-card">
-                    <div class="card-title">{name}</div>
-                    <div class="card-temp">{temp}</div>
-                    <div class="status-badge {status_class}">STATUS: {status}</div>
+            if st.button(f"""
+                <div style="background:rgba(20,30,45,0.8); border:2px solid #38bdf8; padding:30px; text-align:center; border-radius:10px;">
+                    <h3 style="font-family:Orbitron; color:#fff;">{name}</h3>
+                    <h1 style="font-family:Orbitron; color:#38bdf8;">{temp}</h1>
+                    <p style="font-family:Orbitron; color:{color};">STATUS: {status}</p>
                 </div>
-            ''', unsafe_allow_html=True)
-            
-            if st.button(f"OPEN {name} VAULT", key=name, use_container_width=True):
-                st.session_state.target = name
+            """, key=f"btn_{name}", use_container_width=True):
+                st.session_state.selected_continent = name
                 st.session_state.state = "VAULT"
                 st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
+# TRANG 3: VAULT ACTIVE
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.target} VAULT</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
+    
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
