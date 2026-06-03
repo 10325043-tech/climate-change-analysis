@@ -20,11 +20,13 @@ st.markdown("""
     }
 
     .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 15px; font-size: 1.2rem; }
+    
     .neon-title {
         font-family: 'Orbitron'; font-size: 6.5rem; color: #fff; line-height: 0.9;
         text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
     }
 
+    /* Style for buttons in general */
     div.stButton > button {
         background: rgba(56, 189, 248, 0.1) !important;
         border: 2px solid #38bdf8 !important;
@@ -32,26 +34,14 @@ st.markdown("""
         padding: 20px 80px !important;
         font-size: 1.8rem !important;
         font-family: 'Orbitron', sans-serif !important;
-        letter-spacing: 5px !important;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
         transition: 0.3s !important;
     }
-
-    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); }
-
-    .continent-card-btn > button {
-        background: rgba(20, 30, 45, 0.8) !important;
-        border: 2px solid #38bdf8 !important;
-        padding: 30px !important;
-        width: 100% !important;
-        height: auto !important;
-        display: block !important;
-    }
+    
+    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-if 'state' not in st.session_state: 
-    st.session_state.state = "HOME"
+if 'state' not in st.session_state: st.session_state.state = "HOME"
 
 if st.session_state.state == "HOME":
     st.markdown("""
@@ -60,40 +50,31 @@ if st.session_state.state == "HOME":
             <div class="neon-title">CLIMATE VAULT</div>
         </div>
     """, unsafe_allow_html=True)
-    
     c1, c2, c3 = st.columns([1, 1, 1])
-    with c2:
-        if st.button("INITIALIZE SYSTEM", use_container_width=True):
-            st.session_state.state = "SELECT"
-            st.rerun()
+    if c2.button("INITIALIZE SYSTEM", use_container_width=True):
+        st.session_state.state = "SELECT"
+        st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:40px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
     
     continents = [
-        ("OCEANIA", "+34°C", "SECURE", "#00ff9d"), ("ASIA", "+34°C", "CRITICAL", "#ff4d4d"), 
-        ("EUROPE", "+22°C", "SECURE", "#00ff9d"), ("AFRICA", "+28°C", "SECURE", "#00ff9d"), 
-        ("NORTH AMERICA", "+34.2°C", "SECURE", "#00ff9d"), ("SOUTH AMERICA", "+31.8°C", "SECURE", "#00ff9d")
+        ("OCEANIA", "+34°C", "SECURE"), ("ASIA", "+34°C", "CRITICAL"), 
+        ("EUROPE", "+22°C", "SECURE"), ("AFRICA", "+28°C", "SECURE"), 
+        ("NORTH AMERICA", "+34.2°C", "SECURE"), ("SOUTH AMERICA", "+31.8°C", "SECURE")
     ]
     
     cols = st.columns(3)
-    for i, (name, temp, status, color) in enumerate(continents):
+    for i, (name, temp, status) in enumerate(continents):
         with cols[i % 3]:
-            st.markdown('<div class="continent-card-btn">', unsafe_allow_html=True)
-            if st.button(f"""
-                <div style="text-align:center;">
-                    <h3 style="font-family:Orbitron; color:#fff; margin:0;">{name}</h3>
-                    <h1 style="font-family:Orbitron; color:#38bdf8; margin:10px 0;">{temp}</h1>
-                    <p style="font-family:Orbitron; color:{color}; margin:0;">STATUS: {status}</p>
-                </div>
-            """, key=f"btn_{name}"):
-                st.session_state.selected_continent = name
+            # Đảm bảo nút hiển thị rõ ràng và gọi state VAULT
+            if st.button(f"{name}\n{temp}\nSTATUS: {status}", key=name, use_container_width=True):
+                st.session_state.target = name
                 st.session_state.state = "VAULT"
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.target} VAULT</h1>', unsafe_allow_html=True)
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
