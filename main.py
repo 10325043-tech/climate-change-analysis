@@ -10,7 +10,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
         background-size: cover;
         background-position: center;
@@ -50,16 +50,16 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-    
+
     .badge {
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-family: 'Orbitron';
-        font-size: 0.85rem;
         display: inline-block;
-        margin-top: 5px;
+        padding: 5px 15px;
         background: #ff4d4d;
         color: white;
+        font-family: 'Orbitron';
+        border-radius: 5px;
+        font-size: 0.8rem;
+        margin-top: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
