@@ -50,7 +50,7 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-
+    
     .threat-card {
         background: rgba(255, 77, 77, 0.1);
         border: 1px solid #ff4d4d;
@@ -80,6 +80,7 @@ if st.session_state.state == "HOME":
 
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:40px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
+    
     data = [
         ("OCEANIA", 34, 38, "SECURE", "#00ff9d"), 
         ("ASIA", 34, 32, "CRITICAL", "#ff4d4d"), 
@@ -88,6 +89,7 @@ elif st.session_state.state == "SELECT":
         ("NORTH AMERICA", 34.2, 36, "SECURE", "#00ff9d"), 
         ("SOUTH AMERICA", 31.8, 32, "SECURE", "#00ff9d")
     ]
+    
     cols = st.columns(3)
     for i, (name, temp, threshold, status, color) in enumerate(data):
         with cols[i % 3]:
@@ -112,33 +114,42 @@ elif st.session_state.state == "VAULT":
     df['Year'] = df['dt'].dt.year
     df = df.dropna(subset=['AverageTemperature'])
     
-    # Simulate continent filtering (Mapping example)
-    continent_map = {"ASIA": ["Japan", "China", "Vietnam", "India"], "OCEANIA": ["Australia", "New Zealand"]}
-    country_list = continent_map.get(st.session_state.selected_continent, df['Country'].unique().tolist())
+    continent_mapping = {
+        "ASIA": ["Japan", "China", "Vietnam", "India"],
+        "OCEANIA": ["Australia", "New Zealand"],
+        "EUROPE": ["United Kingdom", "France", "Germany"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa"],
+        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Chile"]
+    }
+    
+    available_nations = continent_mapping.get(st.session_state.selected_continent, df['Country'].unique().tolist())
     
     l_col, mid_col, r_col = st.columns([1, 2, 1])
     
     with l_col:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        selected_nations = st.multiselect("NATIONS", country_list, default=[country_list[0]])
+        selected_nations = st.multiselect("NATIONS", available_nations, default=[available_nations[0]])
         year_range = st.slider("YEAR RANGE", 2000, 2012, (2000, 2012))
         st.markdown('</div>', unsafe_allow_html=True)
-        if st.button("BACK TO SELECTION"):
+        
+        if st.button("BACK TO SELECTION", use_container_width=True):
             st.session_state.state = "SELECT"
             st.rerun()
             
     with mid_col:
-        with st.spinner('Decrypting...'):
-            sub = df[(df['Country'].isin(selected_nations)) & (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])]
-            fig = px.line(sub, x="Year", y="AverageTemperature", color="Country", markers=True)
-            fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
-            st.plotly_chart(fig, use_container_width=True)
-            if selected_nations:
-                st.markdown(f'<div class="threat-card">THREAT LEVEL: {"HIGH" if sub["AverageTemperature"].mean() > 15 else "NORMAL"}</div>', unsafe_allow_html=True)
+        sub = df[(df['Country'].isin(selected_nations)) & (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])]
+        fig = px.line(sub, x="Year", y="AverageTemperature", color="Country", markers=True)
+        fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
+        st.plotly_chart(fig, use_container_width=True)
+        
+        if selected_nations:
+            st.markdown(f'<div class="threat-card">THREAT LEVEL: {"HIGH" if sub["AverageTemperature"].mean() > 15 else "NORMAL"}</div>', unsafe_allow_html=True)
                 
     with r_col:
         radar = go.Figure()
-        radar.add_trace(go.Scatterpolar(r=[8, 5, 9], theta=['Temp', 'Volatility', 'Risk'], fill='toself', line_color='#38bdf8'))
+        for nation in selected_nations:
+            radar.add_trace(go.Scatterpolar(r=[8, 5, 9], theta=['Temp', 'Volatility', 'Risk'], fill='toself', name=nation))
         radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
         st.plotly_chart(radar, use_container_width=True)
-        st.markdown('<div class="card">Data Intelligence active for selected sector.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card">Intelligence feed optimized for the selected sector.</div>', unsafe_allow_html=True)
