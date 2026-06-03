@@ -56,46 +56,37 @@ st.markdown("""
         transform: scale(1.05);
     }
     
-    .page-title {
-        font-family: 'Orbitron';
-        color: #fff;
-        font-size: 4rem;
-        text-align: center;
-        margin-bottom: 50px;
-        text-shadow: 0 0 10px #38bdf8;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        padding: 20px;
-    }
-
-    .card {
-        background: rgba(10, 25, 45, 0.7);
-        border: 2px solid #38bdf8;
-        padding: 40px;
-        text-align: center;
-        transition: 0.3s;
-    }
-
-    .card:hover {
-        background: rgba(56, 189, 248, 0.2);
-        box-shadow: 0 0 30px #38bdf8;
-    }
-
-    .card-text {
-        font-family: 'Orbitron';
-        color: #fff;
-        font-size: 1.5rem;
-    }
-
-    .card-temp {
+    .sector-header {
         font-family: 'Orbitron';
         color: #38bdf8;
         font-size: 3rem;
-        margin-top: 10px;
+        text-align: center;
+        margin-bottom: 40px;
+        letter-spacing: 10px;
+    }
+
+    .sector-card {
+        background: rgba(10, 25, 45, 0.6);
+        border-left: 5px solid #38bdf8;
+        padding: 30px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .continent-name {
+        font-family: 'Orbitron';
+        color: #fff;
+        font-size: 2.5rem;
+        margin: 0;
+    }
+
+    .temp-display {
+        font-family: 'Orbitron';
+        color: #38bdf8;
+        font-size: 3rem;
+        margin: 0;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -118,23 +109,29 @@ if st.session_state.state == "HOME":
             st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<div class="page-title">SELECT SECTOR</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sector-header">SELECT SECTOR</div>', unsafe_allow_html=True)
     
     sectors = [
         ("OCEANIA", "+34°C"), ("ASIA", "+34°C"), ("EUROPE", "+22°C"),
         ("AFRICA", "+28°C"), ("NORTH AMERICA", "+34.2°C"), ("SOUTH AMERICA", "+31.8°C")
     ]
     
-    st.markdown('<div class="grid">', unsafe_allow_html=True)
     for name, temp in sectors:
-        if st.button(f"{name}\n\n{temp}", key=name, use_container_width=True):
+        st.markdown(f'''
+            <div class="sector-card">
+                <div>
+                    <p class="continent-name">{name}</p>
+                    <p class="temp-display">{temp}</p>
+                </div>
+            </div>
+        ''', unsafe_allow_html=True)
+        if st.button(f"ACCESS {name}", key=name):
             st.session_state.target = name
             st.session_state.state = "VAULT"
             st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<div class="page-title">VAULT ACCESS: {st.session_state.target}</div>', unsafe_allow_html=True)
-    if st.button("BACK TO SECTORS"):
+    st.markdown(f'<div class="sector-header">ACCESSING: {st.session_state.target}</div>', unsafe_allow_html=True)
+    if st.button("RETURN TO SCANNER"):
         st.session_state.state = "SELECT"
         st.rerun()
