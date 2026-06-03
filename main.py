@@ -10,7 +10,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
         background-size: cover;
         background-position: center;
@@ -50,14 +50,16 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-
-    .intelligence-panel {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #38bdf8;
-        padding: 15px;
-        border-radius: 10px;
-        color: #38bdf8;
+    
+    .badge {
+        padding: 8px 12px;
+        border-radius: 6px;
         font-family: 'Orbitron';
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-top: 5px;
+        background: #ff4d4d;
+        color: white;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -106,36 +108,38 @@ elif st.session_state.state == "SELECT":
                 st.rerun()
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} WAR ROOM</h1>', unsafe_allow_html=True)
     
     df = pd.read_csv("GlobalLandTemperaturesByCountry.csv")
-    df['dt'] = pd.to_datetime(df['dt'])
-    df['Year'] = df['dt'].dt.year
-    df = df.dropna(subset=['AverageTemperature'])
+    df['Year'] = pd.to_datetime(df['dt']).dt.year
+    nations = sorted(df['Country'].dropna().unique().tolist())
     
-    all_nations = sorted(df['Country'].unique().tolist())
+    col1, col2, col3 = st.columns([1, 2.5, 1.5])
     
-    c1, c2, c3 = st.columns([1, 2, 1])
-    
-    with c1:
+    with col1:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        selected_nations = st.multiselect("NATIONS", all_nations, default=[all_nations[0]])
-        year_range = st.slider("YEAR RANGE", int(df['Year'].min()), int(df['Year'].max()), (2000, 2012))
+        selected = st.multiselect("NATIONS", nations, default=[nations[0]])
+        st.slider("YEAR RANGE", 2000, 2012, (2000, 2012))
         st.markdown('</div>', unsafe_allow_html=True)
+        
+        for n in selected:
+            st.markdown(f'<div class="card"><strong>{n}</strong><br><span class="badge">HIGH RISK</span></div>', unsafe_allow_html=True)
+            
         if st.button("BACK TO SELECTION", use_container_width=True):
             st.session_state.state = "SELECT"
             st.rerun()
             
-    with c2:
-        sub = df[(df['Country'].isin(selected_nations)) & (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])]
-        fig = px.line(sub, x="Year", y="AverageTemperature", color="Country", markers=True)
-        fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
+    with col2:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        sub = df[df['Country'].isin(selected)]
+        fig = px.line(sub, x="Year", y="AverageTemperature", color="Country")
+        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
         st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
-    with c3:
-        radar = go.Figure()
-        for n in selected_nations[:3]:
-            radar.add_trace(go.Scatterpolar(r=[5, 8, 7], theta=['Temp', 'Volatility', 'Risk'], fill='toself', name=n))
-        radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8", showlegend=False)
+    with col3:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        radar = go.Figure(go.Scatterpolar(r=[9, 8, 7, 6, 9], theta=['Warming', 'Weather', 'Air', 'Sea', 'Economy'], fill='toself'))
+        radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
         st.plotly_chart(radar, use_container_width=True)
-        st.markdown('<div class="intelligence-panel">DATA INTELLIGENCE ACTIVE</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
