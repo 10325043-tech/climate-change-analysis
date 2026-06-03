@@ -50,15 +50,14 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-    
-    .threat-card {
-        background: rgba(255, 77, 77, 0.1);
-        border: 1px solid #ff4d4d;
+
+    .intelligence-panel {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid #38bdf8;
         padding: 15px;
         border-radius: 10px;
-        color: #fff;
+        color: #38bdf8;
         font-family: 'Orbitron';
-        margin-top: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -114,42 +113,29 @@ elif st.session_state.state == "VAULT":
     df['Year'] = df['dt'].dt.year
     df = df.dropna(subset=['AverageTemperature'])
     
-    continent_mapping = {
-        "ASIA": ["Japan", "China", "Vietnam", "India"],
-        "OCEANIA": ["Australia", "New Zealand"],
-        "EUROPE": ["United Kingdom", "France", "Germany"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Chile"]
-    }
+    all_nations = sorted(df['Country'].unique().tolist())
     
-    available_nations = continent_mapping.get(st.session_state.selected_continent, df['Country'].unique().tolist())
+    c1, c2, c3 = st.columns([1, 2, 1])
     
-    l_col, mid_col, r_col = st.columns([1, 2, 1])
-    
-    with l_col:
+    with c1:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        selected_nations = st.multiselect("NATIONS", available_nations, default=[available_nations[0]])
-        year_range = st.slider("YEAR RANGE", 2000, 2012, (2000, 2012))
+        selected_nations = st.multiselect("NATIONS", all_nations, default=[all_nations[0]])
+        year_range = st.slider("YEAR RANGE", int(df['Year'].min()), int(df['Year'].max()), (2000, 2012))
         st.markdown('</div>', unsafe_allow_html=True)
-        
         if st.button("BACK TO SELECTION", use_container_width=True):
             st.session_state.state = "SELECT"
             st.rerun()
             
-    with mid_col:
+    with c2:
         sub = df[(df['Country'].isin(selected_nations)) & (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])]
         fig = px.line(sub, x="Year", y="AverageTemperature", color="Country", markers=True)
         fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
         st.plotly_chart(fig, use_container_width=True)
         
-        if selected_nations:
-            st.markdown(f'<div class="threat-card">THREAT LEVEL: {"HIGH" if sub["AverageTemperature"].mean() > 15 else "NORMAL"}</div>', unsafe_allow_html=True)
-                
-    with r_col:
+    with c3:
         radar = go.Figure()
-        for nation in selected_nations:
-            radar.add_trace(go.Scatterpolar(r=[8, 5, 9], theta=['Temp', 'Volatility', 'Risk'], fill='toself', name=nation))
-        radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
+        for n in selected_nations[:3]:
+            radar.add_trace(go.Scatterpolar(r=[5, 8, 7], theta=['Temp', 'Volatility', 'Risk'], fill='toself', name=n))
+        radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8", showlegend=False)
         st.plotly_chart(radar, use_container_width=True)
-        st.markdown('<div class="card">Intelligence feed optimized for the selected sector.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="intelligence-panel">DATA INTELLIGENCE ACTIVE</div>', unsafe_allow_html=True)
