@@ -55,32 +55,22 @@ st.markdown("""
         color: #000 !important;
         transform: scale(1.05);
     }
-
-    .grid-container {
+    
+    .grid-box {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
-        padding: 40px;
+        margin-top: 30px;
     }
 
     .sector-card {
-        background: rgba(10, 25, 45, 0.7);
+        background: rgba(10, 25, 45, 0.8);
         border: 2px solid #38bdf8;
         padding: 30px;
         text-align: center;
-        transition: 0.4s;
-        cursor: pointer;
+        color: #fff;
+        font-family: 'Orbitron';
     }
-
-    .sector-card:hover {
-        background: rgba(56, 189, 248, 0.2);
-        box-shadow: 0 0 30px #38bdf8;
-        transform: translateY(-10px);
-    }
-
-    .title-text { font-family: 'Orbitron'; color: #fff; font-size: 1.8rem; }
-    .temp-text { font-family: 'Orbitron'; color: #38bdf8; font-size: 3rem; margin-top: 10px; }
-    .status-text { font-family: 'Orbitron'; color: #fff; font-size: 0.9rem; opacity: 0.7; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -102,32 +92,31 @@ if st.session_state.state == "HOME":
             st.rerun()
 
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center;">SELECT SECTOR</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
     
-    sectors = [
-        ("OCEANIA", "+34°C", "SECURE"), ("ASIA", "+34°C", "CRITICAL"), 
-        ("EUROPE", "+22°C", "SECURE"), ("AFRICA", "+28°C", "SECURE"), 
-        ("NORTH AMERICA", "+34.2°C", "SECURE"), ("SOUTH AMERICA", "+31.8°C", "SECURE")
+    continents = [
+        ("OCEANIA", "+34°C"), ("ASIA", "+34°C"), ("EUROPE", "+22°C"),
+        ("AFRICA", "+28°C"), ("NORTH AMERICA", "+34.2°C"), ("SOUTH AMERICA", "+31.8°C")
     ]
     
-    st.markdown('<div class="grid-container">', unsafe_allow_html=True)
+    st.markdown('<div class="grid-box">', unsafe_allow_html=True)
     cols = st.columns(3)
-    for i, (name, temp, status) in enumerate(sectors):
+    for i, (name, temp) in enumerate(continents):
         with cols[i % 3]:
-            if st.button(f"""
+            st.markdown(f'''
                 <div class="sector-card">
-                    <div class="title-text">{name}</div>
-                    <div class="temp-text">{temp}</div>
-                    <div class="status-text">STATUS: {status}</div>
+                    <h3>{name}</h3>
+                    <p style="font-size: 1.5rem; color: #38bdf8;">{temp}</p>
                 </div>
-            """, key=name, use_container_width=True):
+            ''', unsafe_allow_html=True)
+            if st.button(f"ACCESS {name}", key=name, use_container_width=True):
                 st.session_state.target = name
                 st.session_state.state = "VAULT"
                 st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">ACCESSING: {st.session_state.target} VAULT</h1>', unsafe_allow_html=True)
-    if st.button("RETURN TO SCANNER"):
+    st.markdown(f'<h1 style="color:#fff; font-family:Orbitron; text-align:center;">VAULT: {st.session_state.target}</h1>', unsafe_allow_html=True)
+    if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
