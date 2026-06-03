@@ -61,7 +61,6 @@ st.markdown("""
 if 'state' not in st.session_state: 
     st.session_state.state = "HOME"
 
-# TRANG 1: HOME
 if st.session_state.state == "HOME":
     st.markdown("""
         <div class="hero-box">
@@ -76,7 +75,6 @@ if st.session_state.state == "HOME":
             st.session_state.state = "SELECT"
             st.rerun()
 
-# TRANG 2: SELECT CONTINENT
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:50px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
     
@@ -93,17 +91,16 @@ elif st.session_state.state == "SELECT":
     for i, (name, temp, status, color) in enumerate(continents):
         with cols[i % 3]:
             if st.button(f"""
-                <div style="background:rgba(20,30,45,0.8); border:2px solid #38bdf8; padding:30px; text-align:center; border-radius:10px;">
-                    <h3 style="font-family:Orbitron; color:#fff;">{name}</h3>
-                    <h1 style="font-family:Orbitron; color:#38bdf8;">{temp}</h1>
-                    <p style="font-family:Orbitron; color:{color};">STATUS: {status}</p>
+                <div style="background:rgba(20,30,45,0.8); border:2px solid #38bdf8; padding:30px; text-align:center; border-radius:10px; cursor:pointer;">
+                    <h3 style="font-family:Orbitron; color:#fff; margin:0;">{name}</h3>
+                    <h1 style="font-family:Orbitron; color:#38bdf8; margin:10px 0;">{temp}</h1>
+                    <p style="font-family:Orbitron; color:{color}; margin:0;">STATUS: {status}</p>
                 </div>
             """, key=f"btn_{name}", use_container_width=True):
                 st.session_state.selected_continent = name
                 st.session_state.state = "VAULT"
                 st.rerun()
 
-# TRANG 3: VAULT ACTIVE
 elif st.session_state.state == "VAULT":
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
     
