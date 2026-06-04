@@ -49,15 +49,6 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-    
-    .metric-card {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #38bdf8;
-        padding: 15px;
-        border-radius: 5px;
-        text-align: center;
-        margin: 5px;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -78,6 +69,7 @@ if st.session_state.state == "HOME":
 
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:40px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
+    
     data = [
         ("OCEANIA", 34, 38, "SECURE", "#00ff9d"), 
         ("ASIA", 34, 32, "CRITICAL", "#ff4d4d"), 
@@ -86,6 +78,7 @@ elif st.session_state.state == "SELECT":
         ("NORTH AMERICA", 34.2, 36, "SECURE", "#00ff9d"), 
         ("SOUTH AMERICA", 31.8, 32, "SECURE", "#00ff9d")
     ]
+    
     cols = st.columns(3)
     for i, (name, temp, threshold, status, color) in enumerate(data):
         with cols[i % 3]:
@@ -103,30 +96,51 @@ elif st.session_state.state == "SELECT":
                 st.rerun()
 
 elif st.session_state.state == "VAULT":
+    @st.cache_data
+    def get_data():
+        df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
+        df['dt'] = pd.to_datetime(df['dt'])
+        df['year'] = df['dt'].dt.year
+        return df
+
+    df = get_data()
+    nations = sorted(df['Country'].unique())
+
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
-    
-    # Sidebar Filters
-    with st.sidebar:
-        st.header("CONTROLS")
-        nations = ["Vietnam", "Japan", "Thailand", "India", "China"] if st.session_state.selected_continent == "ASIA" else ["Others"]
-        selected_nation = st.selectbox("SELECT NATION", nations)
-        start_year, end_year = st.slider("YEAR RANGE", 1850, 2026, (2016, 2026))
 
-    # Top Metrics
-    m1, m2, m3 = st.columns(3)
-    m1.metric("AVG TEMP", "32.4°C", "+1.2°C")
-    m2.metric("RISK LEVEL", "HIGH", "CRITICAL")
-    m3.metric("DATA POINTS", "10,240", "ACTIVE")
+    col_filter, col_main, col_metrics = st.columns([1, 2, 1])
 
-    # Main Graph Area
-    st.markdown("### CLIMATE TREND ANALYSIS")
-    chart_data = pd.DataFrame(np.random.randn(len(range(start_year, end_year+1)), 1), columns=['Temp'], index=range(start_year, end_year+1))
-    st.line_chart(chart_data)
+    with col_filter:
+        st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
+        sel_nation = st.selectbox("SELECT TARGET", nations)
+        nat_df = df[df['Country'] == sel_nation].dropna(subset=['AverageTemperature'])
+        min_y, max_y = int(nat_df['year'].min()), int(nat_df['year'].max())
+        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 10, max_y))
+        
+        st.markdown('<div class="card"><h3>AI INTEL FEED</h3></div>', unsafe_allow_html=True)
+        avg = nat_df[(nat_df['year'] >= y_range[0]) & (nat_df['year'] <= y_range[1])]['AverageTemperature'].mean()
+        if avg > 20:
+            st.error("STATUS: CLIMATE EMERGENCY\n\nTrend: Rapid warming exceeding thresholds.")
+        else:
+            st.success("STATUS: CLIMATE STABLE\n\nTrend: Within parameters.")
 
-    # Risk Intel Section
-    st.markdown("### INTELLIGENCE REPORT")
-    st.warning(f"ALERT: {selected_nation} is currently showing a {st.session_state.selected_continent} warming trend that exceeds regional thresholds. Mitigation protocols required.")
-    
+    with col_main:
+        with st.spinner('LOADING INTELLIGENCE...'):
+            st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
+            plot_df = nat_df[(nat_df['year'] >= y_range[0]) & (nat_df['year'] <= y_range[1])]
+            st.line_chart(plot_df.set_index('year')['AverageTemperature'])
+            show_radar = st.checkbox("ENABLE COMPARATIVE MODE")
+            if show_radar:
+                st.info("RADAR PROTOCOL ACTIVE")
+
+    with col_metrics:
+        st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
+        m1, m2 = st.columns(2)
+        m1.metric("TEMP", f"{avg:.1f}°C")
+        m2.metric("DELTA", f"{(avg-15):.1f}°C")
+        st.metric("RISK LEVEL", "HIGH" if avg > 20 else "LOW")
+        st.markdown('<div class="card" style="font-size: 0.8rem;">TACTICAL NOTE: Data sourced from global land temperature archives.</div>', unsafe_allow_html=True)
+
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
         st.rerun()
