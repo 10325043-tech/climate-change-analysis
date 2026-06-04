@@ -97,60 +97,64 @@ elif st.session_state.state == "SELECT":
 
 elif st.session_state.state == "VAULT":
     @st.cache_data
-    def get_data():
+    def load_vault_data():
         df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
         df['dt'] = pd.to_datetime(df['dt'])
         df['year'] = df['dt'].dt.year
         return df
 
-    df = get_data()
-    mapping = {
-        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Pakistan", "Philippines"],
-        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Ukraine"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Morocco", "Algeria"],
-        "OCEANIA": ["Australia", "New Zealand", "Fiji"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru"]
-    }
+    df = load_vault_data()
+    continent = st.session_state.selected_continent
     
-    cnt = st.session_state.selected_continent
-    countries = mapping.get(cnt, df['Country'].unique()[:10])
+    mapping = {
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya"],
+        "OCEANIA": ["Australia", "New Zealand"],
+        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile"]
+    }
+    target_countries = mapping.get(continent, df['Country'].unique()[:5])
 
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{cnt} COMMAND CENTER</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
-    c_filter, c_main, c_metrics = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-    with c_filter:
+    with col1:
         st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel = st.multiselect("SELECT NATIONS", countries, default=[countries[0]])
-        y_min, y_max = int(df['year'].min()), int(df['year'].max())
-        y_range = st.slider("YEAR RANGE", y_min, y_max, (y_max - 10, y_max))
+        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=[target_countries[0]])
+        min_y, max_y = int(df['year'].min()), int(df['year'].max())
+        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 20, max_y))
         
         st.markdown('<div class="card"><h3>AI INTEL FEED</h3></div>', unsafe_allow_html=True)
-        if sel:
-            for n in sel:
-                d = df[df['Country'] == n]
-                avg = d[(d['year'] >= y_range[0]) & (d['year'] <= y_range[1])]['AverageTemperature'].mean()
-                base = d['AverageTemperature'].mean()
-                color = "#ff4d4d" if avg > base else "#00ff9d"
-                st.markdown(f"**{n}:** <span style='color:{color}'>{'EMERGENCY' if avg > base else 'STABLE'}</span>", unsafe_allow_html=True)
+        if sel_nations:
+            for n in sel_nations:
+                subset = df[df['Country'] == n]
+                baseline = subset[subset['year'].between(1850, 1900)]['AverageTemperature'].mean()
+                current_val = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
+                
+                delta = current_val - baseline
+                status = "EMERGENCY" if delta > 1.5 else "WARNING" if delta > 0.5 else "STABLE"
+                color = "#ff4d4d" if status == "EMERGENCY" else "#ffcc00" if status == "WARNING" else "#00ff9d"
+                st.markdown(f"**{n}:** <span style='color:{color}'>{status}</span> (Δ: {delta:+.2f}°C)", unsafe_allow_html=True)
 
-    with c_main:
-        with st.spinner('LOADING INTELLIGENCE...'):
-            st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-            plot_df = df[(df['Country'].isin(sel)) & (df['year'].between(y_range[0], y_range[1]))]
-            fig = px.line(plot_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, use_container_width=True)
+    with col2:
+        st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
+        filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(y_range[0], y_range[1]))]
+        
+        fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
+        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", hovermode="x unified")
+        st.plotly_chart(fig, use_container_width=True)
 
-    with c_metrics:
+    with col3:
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
-        if sel:
-            val = df[(df['Country'].isin(sel)) & (df['year'].between(y_range[0], y_range[1]))]['AverageTemperature'].mean()
-            st.metric("AVG TEMP", f"{val:.1f}°C")
-            st.metric("NODES", len(sel))
-            st.metric("STATUS", "CRITICAL" if val > 20 else "SECURE")
-            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: DATA SOURCED FROM GLOBAL ARCHIVES.</div>', unsafe_allow_html=True)
+        if sel_nations:
+            avg_temp = df[(df['Country'].isin(sel_nations)) & (df['year'].between(y_range[0], y_range[1]))]['AverageTemperature'].mean()
+            st.metric("AVG TEMP", f"{avg_temp:.1f}°C")
+            st.metric("ACTIVE NODES", len(sel_nations))
+            risk_idx = (avg_temp / 25) * 100
+            st.metric("RISK INDEX", f"{risk_idx:.0f}%")
+            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: DATA SOURCED DIRECTLY FROM GLOBAL ARCHIVES.</div>', unsafe_allow_html=True)
 
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
