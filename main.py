@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+import numpy as np
 
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
@@ -50,16 +49,14 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 10px;
     }
-
-    .badge {
-        display: inline-block;
-        padding: 5px 15px;
-        background: #ff4d4d;
-        color: white;
-        font-family: 'Orbitron';
+    
+    .metric-card {
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid #38bdf8;
+        padding: 15px;
         border-radius: 5px;
-        font-size: 0.8rem;
-        margin-top: 10px;
+        text-align: center;
+        margin: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -81,7 +78,6 @@ if st.session_state.state == "HOME":
 
 elif st.session_state.state == "SELECT":
     st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:40px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
-    
     data = [
         ("OCEANIA", 34, 38, "SECURE", "#00ff9d"), 
         ("ASIA", 34, 32, "CRITICAL", "#ff4d4d"), 
@@ -90,7 +86,6 @@ elif st.session_state.state == "SELECT":
         ("NORTH AMERICA", 34.2, 36, "SECURE", "#00ff9d"), 
         ("SOUTH AMERICA", 31.8, 32, "SECURE", "#00ff9d")
     ]
-    
     cols = st.columns(3)
     for i, (name, temp, threshold, status, color) in enumerate(data):
         with cols[i % 3]:
@@ -108,38 +103,30 @@ elif st.session_state.state == "SELECT":
                 st.rerun()
 
 elif st.session_state.state == "VAULT":
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} WAR ROOM</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
     
-    df = pd.read_csv("GlobalLandTemperaturesByCountry.csv")
-    df['Year'] = pd.to_datetime(df['dt']).dt.year
-    nations = sorted(df['Country'].dropna().unique().tolist())
+    # Sidebar Filters
+    with st.sidebar:
+        st.header("CONTROLS")
+        nations = ["Vietnam", "Japan", "Thailand", "India", "China"] if st.session_state.selected_continent == "ASIA" else ["Others"]
+        selected_nation = st.selectbox("SELECT NATION", nations)
+        start_year, end_year = st.slider("YEAR RANGE", 1850, 2026, (2016, 2026))
+
+    # Top Metrics
+    m1, m2, m3 = st.columns(3)
+    m1.metric("AVG TEMP", "32.4°C", "+1.2°C")
+    m2.metric("RISK LEVEL", "HIGH", "CRITICAL")
+    m3.metric("DATA POINTS", "10,240", "ACTIVE")
+
+    # Main Graph Area
+    st.markdown("### CLIMATE TREND ANALYSIS")
+    chart_data = pd.DataFrame(np.random.randn(len(range(start_year, end_year+1)), 1), columns=['Temp'], index=range(start_year, end_year+1))
+    st.line_chart(chart_data)
+
+    # Risk Intel Section
+    st.markdown("### INTELLIGENCE REPORT")
+    st.warning(f"ALERT: {selected_nation} is currently showing a {st.session_state.selected_continent} warming trend that exceeds regional thresholds. Mitigation protocols required.")
     
-    col1, col2, col3 = st.columns([1, 2.5, 1.5])
-    
-    with col1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        selected = st.multiselect("NATIONS", nations, default=[nations[0]])
-        st.slider("YEAR RANGE", 2000, 2012, (2000, 2012))
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        for n in selected:
-            st.markdown(f'<div class="card"><strong>{n}</strong><br><span class="badge">HIGH RISK</span></div>', unsafe_allow_html=True)
-            
-        if st.button("BACK TO SELECTION", use_container_width=True):
-            st.session_state.state = "SELECT"
-            st.rerun()
-            
-    with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        sub = df[df['Country'].isin(selected)]
-        fig = px.line(sub, x="Year", y="AverageTemperature", color="Country")
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with col3:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        radar = go.Figure(go.Scatterpolar(r=[9, 8, 7, 6, 9], theta=['Warming', 'Weather', 'Air', 'Sea', 'Economy'], fill='toself'))
-        radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 10])), paper_bgcolor="rgba(0,0,0,0)", font_color="#38bdf8")
-        st.plotly_chart(radar, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    if st.button("BACK TO SELECTION"):
+        st.session_state.state = "SELECT"
+        st.rerun()
