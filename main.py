@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+import plotly.express as px
 
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
@@ -97,49 +97,61 @@ elif st.session_state.state == "SELECT":
 
 elif st.session_state.state == "VAULT":
     @st.cache_data
-    def get_data():
+    def load_data():
         df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
         df['dt'] = pd.to_datetime(df['dt'])
         df['year'] = df['dt'].dt.year
         return df
 
-    df = get_data()
-    nations = sorted(df['Country'].unique())
+    df = load_data()
+    
+    mapping = {
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Pakistan", "Philippines"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Ukraine"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Morocco", "Algeria"],
+        "OCEANIA": ["Australia", "New Zealand", "Fiji"],
+        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru"]
+    }
+    
+    continent = st.session_state.selected_continent
+    countries_in_continent = mapping.get(continent, df['Country'].unique()[:10])
 
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
-    col_filter, col_main, col_metrics = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col_filter:
+    with col1:
         st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel_nation = st.selectbox("SELECT TARGET", nations)
-        nat_df = df[df['Country'] == sel_nation].dropna(subset=['AverageTemperature'])
-        min_y, max_y = int(nat_df['year'].min()), int(nat_df['year'].max())
-        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 10, max_y))
+        sel_nations = st.multiselect("SELECT NATIONS", countries_in_continent, default=[countries_in_continent[0]])
+        min_y, max_y = int(df['year'].min()), int(df['year'].max())
+        year_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 10, max_y))
         
         st.markdown('<div class="card"><h3>AI INTEL FEED</h3></div>', unsafe_allow_html=True)
-        avg = nat_df[(nat_df['year'] >= y_range[0]) & (nat_df['year'] <= y_range[1])]['AverageTemperature'].mean()
-        if avg > 20:
-            st.error("STATUS: CLIMATE EMERGENCY\n\nTrend: Rapid warming exceeding thresholds.")
-        else:
-            st.success("STATUS: CLIMATE STABLE\n\nTrend: Within parameters.")
+        if sel_nations:
+            for n in sel_nations:
+                n_df = df[df['Country'] == n]
+                avg = n_df[(n_df['year'] >= year_range[0]) & (n_df['year'] <= year_range[1])]['AverageTemperature'].mean()
+                risk = "EMERGENCY" if avg > 20 else "STABLE"
+                color = "#ff4d4d" if risk == "EMERGENCY" else "#00ff9d"
+                st.markdown(f"**{n}:** <span style='color:{color}'>{risk}</span>", unsafe_allow_html=True)
 
-    with col_main:
+    with col2:
         with st.spinner('LOADING INTELLIGENCE...'):
             st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-            plot_df = nat_df[(nat_df['year'] >= y_range[0]) & (nat_df['year'] <= y_range[1])]
-            st.line_chart(plot_df.set_index('year')['AverageTemperature'])
-            show_radar = st.checkbox("ENABLE COMPARATIVE MODE")
-            if show_radar:
-                st.info("RADAR PROTOCOL ACTIVE")
+            filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(year_range[0], year_range[1]))]
+            fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            st.plotly_chart(fig, use_container_width=True)
 
-    with col_metrics:
+    with col3:
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
-        m1, m2 = st.columns(2)
-        m1.metric("TEMP", f"{avg:.1f}°C")
-        m2.metric("DELTA", f"{(avg-15):.1f}°C")
-        st.metric("RISK LEVEL", "HIGH" if avg > 20 else "LOW")
-        st.markdown('<div class="card" style="font-size: 0.8rem;">TACTICAL NOTE: Data sourced from global land temperature archives.</div>', unsafe_allow_html=True)
+        if sel_nations:
+            avg_temp = df[df['Country'].isin(sel_nations)]['AverageTemperature'].mean()
+            st.metric("AVG REGIONAL TEMP", f"{avg_temp:.1f}°C")
+            st.metric("ACTIVE NODES", len(sel_nations))
+            st.metric("SYSTEM LOAD", "98%")
+            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: Data sourced from global archives.</div>', unsafe_allow_html=True)
 
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
