@@ -107,28 +107,28 @@ elif st.session_state.state == "VAULT":
     continent = st.session_state.selected_continent
     
     mapping = {
-        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia"],
-        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya"],
-        "OCEANIA": ["Australia", "New Zealand"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile"]
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Philippines", "South Korea", "Malaysia", "Singapore", "Pakistan", "Bangladesh"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Netherlands", "Sweden", "Poland", "Norway", "Switzerland"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria", "Morocco", "Ethiopia", "Ghana", "Tanzania"],
+        "OCEANIA": ["Australia", "New Zealand", "Fiji", "Papua New Guinea"],
+        "NORTH AMERICA": ["United States", "Canada", "Mexico", "Cuba", "Jamaica"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru", "Uruguay", "Venezuela"]
     }
-    target_countries = mapping.get(continent, df['Country'].unique()[:5])
+    target_countries = mapping.get(continent, df['Country'].unique().tolist())
 
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([1, 3, 1])
 
     with col1:
         st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=[target_countries[0]])
+        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=target_countries)
         min_y, max_y = int(df['year'].min()), int(df['year'].max())
-        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 20, max_y))
+        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 30, max_y))
         
         st.markdown('<div class="card"><h3>AI INTEL FEED</h3></div>', unsafe_allow_html=True)
         if sel_nations:
-            for n in sel_nations:
+            for n in sel_nations[:5]:
                 subset = df[df['Country'] == n]
                 baseline = subset[subset['year'].between(1850, 1900)]['AverageTemperature'].mean()
                 current_val = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
@@ -150,11 +150,11 @@ elif st.session_state.state == "VAULT":
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
         if sel_nations:
             avg_temp = df[(df['Country'].isin(sel_nations)) & (df['year'].between(y_range[0], y_range[1]))]['AverageTemperature'].mean()
-            st.metric("AVG TEMP", f"{avg_temp:.1f}°C")
+            st.metric("AVG REGIONAL TEMP", f"{avg_temp:.1f}°C")
             st.metric("ACTIVE NODES", len(sel_nations))
-            risk_idx = (avg_temp / 25) * 100
+            risk_idx = min((avg_temp / 25) * 100, 100)
             st.metric("RISK INDEX", f"{risk_idx:.0f}%")
-            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: DATA SOURCED DIRECTLY FROM GLOBAL ARCHIVES.</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: SYSTEM ONLINE. DATA INTEGRITY: 100%.</div>', unsafe_allow_html=True)
 
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
