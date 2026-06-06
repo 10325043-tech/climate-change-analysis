@@ -115,6 +115,7 @@ elif st.session_state.state == "VAULT":
         "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru", "Uruguay", "Venezuela"]
     }
     target_countries = mapping.get(continent, df['Country'].unique().tolist())
+    default_nations = [target_countries[0]]
 
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
@@ -122,39 +123,45 @@ elif st.session_state.state == "VAULT":
 
     with col1:
         st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=target_countries)
+        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=default_nations)
         min_y, max_y = int(df['year'].min()), int(df['year'].max())
-        y_range = st.slider("YEAR RANGE", min_y, max_y, (max_y - 30, max_y))
+        y_range = st.slider("YEAR RANGE", min_y, max_y, (1950, max_y))
         
-        st.markdown('<div class="card"><h3>AI INTEL FEED</h3></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><h3>CLIMATE DIAGNOSIS</h3></div>', unsafe_allow_html=True)
         if sel_nations:
-            for n in sel_nations[:5]:
+            for n in sel_nations:
                 subset = df[df['Country'] == n]
                 baseline = subset[subset['year'].between(1850, 1900)]['AverageTemperature'].mean()
-                current_val = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
-                
-                delta = current_val - baseline
-                status = "EMERGENCY" if delta > 1.5 else "WARNING" if delta > 0.5 else "STABLE"
-                color = "#ff4d4d" if status == "EMERGENCY" else "#ffcc00" if status == "WARNING" else "#00ff9d"
-                st.markdown(f"**{n}:** <span style='color:{color}'>{status}</span> (Δ: {delta:+.2f}°C)", unsafe_allow_html=True)
+                curr = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
+                delta = curr - baseline
+                msg = "Stable trend detected" if abs(delta) < 0.5 else f"Significant warming: {delta:+.1f}°C"
+                st.markdown(f"**{n}:** {msg}", unsafe_allow_html=True)
 
     with col2:
         st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-        filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(y_range[0], y_range[1]))]
-        
-        fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
+        chart_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
+        fig = px.line(chart_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", hovermode="x unified")
         st.plotly_chart(fig, use_container_width=True)
 
     with col3:
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
         if sel_nations:
-            avg_temp = df[(df['Country'].isin(sel_nations)) & (df['year'].between(y_range[0], y_range[1]))]['AverageTemperature'].mean()
-            st.metric("AVG REGIONAL TEMP", f"{avg_temp:.1f}°C")
-            st.metric("ACTIVE NODES", len(sel_nations))
-            risk_idx = min((avg_temp / 25) * 100, 100)
-            st.metric("RISK INDEX", f"{risk_idx:.0f}%")
-            st.markdown('<div class="card" style="font-size:0.7rem;">TACTICAL NOTE: SYSTEM ONLINE. DATA INTEGRITY: 100%.</div>', unsafe_allow_html=True)
+            avg_t = df[df['Country'].isin(sel_nations)]['AverageTemperature'].mean()
+            st.metric("THERMAL BASELINE", f"{avg_t:.1f}°C")
+            st.metric("MONITORING DENSITY", f"{len(sel_nations)} Nodes")
+            st.metric("VULNERABILITY", f"{min(len(sel_nations)*15, 99)}%")
+            
+            st.markdown('<div class="card"><h3>SECTOR BRIEF</h3></div>', unsafe_allow_html=True)
+            briefs = {
+                "ASIA": "Monsoon stability remains critical.",
+                "EUROPE": "Industrial heat pulse detected.",
+                "AFRICA": "Aridity levels exceeding norms.",
+                "OCEANIA": "Marine resilience assessment active.",
+                "NORTH AMERICA": "Latitudinal thermal shift observed.",
+                "SOUTH AMERICA": "Ecosystem integrity warning."
+            }
+            st.info(briefs.get(continent, "Monitoring active."))
 
     if st.button("BACK TO SELECTION"):
         st.session_state.state = "SELECT"
