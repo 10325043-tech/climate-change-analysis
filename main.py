@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
@@ -100,30 +99,31 @@ elif st.session_state.state == "SELECT":
 
 elif st.session_state.state == "VAULT":
     @st.cache_data
-    def load_vault_data():
+    def load_data():
         df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
         df['dt'] = pd.to_datetime(df['dt'])
         df['year'] = df['dt'].dt.year
-        return df
+        return df.dropna(subset=['AverageTemperature'])
 
-    df = load_vault_data()
+    df = load_data()
     continent = st.session_state.selected_continent
     
     mapping = {
         "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Philippines"],
         "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom"],
         "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria"],
-        "OCEANIA": ["Australia", "New Zealand", "Fiji", "Papua New Guinea"],
+        "OCEANIA": ["Australia", "New Zealand", "Fiji"],
         "NORTH AMERICA": ["United States", "Canada", "Mexico"],
         "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile"]
     }
-    target_countries = mapping.get(continent, df['Country'].unique().tolist())
+    
+    options = mapping.get(continent, df['Country'].unique().tolist())
     
     with st.sidebar:
         st.markdown("### DATA FILTERS")
-        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=[target_countries[0]])
-        y_range = st.slider("YEAR RANGE", 1850, 2013, (2003, 2013))
-        chart_mode = st.radio("ANALYSIS MODE", ["TREND ANALYSIS", "COMPARATIVE", "VOLATILITY"])
+        sel_nations = st.multiselect("SELECT NATIONS", options, default=[options[0]])
+        y_range = st.slider("YEAR RANGE", int(df['year'].min()), int(df['year'].max()), (int(df['year'].max())-10, int(df['year'].max())))
+        mode = st.radio("ANALYSIS MODE", ["TREND ANALYSIS", "COMPARATIVE", "VOLATILITY"])
 
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
@@ -131,43 +131,33 @@ elif st.session_state.state == "VAULT":
 
     with col1:
         st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-        filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
+        filtered = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
         
-        if chart_mode == "TREND ANALYSIS":
-            fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
+        if mode == "TREND ANALYSIS":
+            fig = px.line(filtered, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("Chart shows temperature trends over time. Smoothed data highlights long-term warming trajectories.")
-        
-        elif chart_mode == "COMPARATIVE":
-            avg_df = filtered_df.groupby('Country')['AverageTemperature'].mean().reset_index()
-            fig = px.bar(avg_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            st.caption("Visualizing the temperature trajectory. Smoothed trends indicate long-term climatic shifts.")
+        elif mode == "COMPARATIVE":
+            fig = px.bar(filtered.groupby('Country')['AverageTemperature'].mean().reset_index(), x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("Comparison of average temperatures across selected nations within the timeframe.")
-            
+            st.caption("Average temperature comparison across the selected nodes within the defined timeframe.")
         else:
-            fig = px.box(filtered_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            fig = px.box(filtered, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
             st.plotly_chart(fig, use_container_width=True)
-            st.caption("Distribution of temperature extremes, highlighting climate volatility per nation.")
+            st.caption("Distribution analysis highlighting temperature volatility and extremes per region.")
 
     with col2:
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
         if sel_nations:
-            avg_t = df[df['Country'].isin(sel_nations)]['AverageTemperature'].mean()
+            avg_t = filtered['AverageTemperature'].mean()
             st.metric("AVG TEMP", f"{avg_t:.1f}°C")
             st.metric("NODES", f"{len(sel_nations)}")
-            st.metric("VULNERABILITY", f"{min(len(sel_nations)*20, 99)}%")
+            st.metric("VULNERABILITY", f"{min(len(sel_nations)*25, 99)}%")
             
             st.markdown('<div class="card"><h3>SECTOR INDICATOR</h3></div>', unsafe_allow_html=True)
-            indicators = {
-                "ASIA": ("MONSOON VOLATILITY", "1.42"),
-                "EUROPE": ("HEAT PULSE", "HIGH"),
-                "AFRICA": ("ARIDITY INDEX", "CRITICAL"),
-                "OCEANIA": ("MARINE COUPLING", "STABLE"),
-                "NORTH AMERICA": ("LATITUDINAL SHIFT", "1.2°"),
-                "SOUTH AMERICA": ("ECO-INTEGRITY", "92%")
-            }
-            label, val = indicators.get(continent, ("STATUS", "ACTIVE"))
-            st.metric(label, val)
+            inds = {"ASIA": "MONSOON VOLATILITY: 1.42", "EUROPE": "HEAT PULSE: HIGH", "AFRICA": "ARIDITY INDEX: CRITICAL", 
+                    "OCEANIA": "MARINE COUPLING: STABLE", "NORTH AMERICA": "LATITUDINAL SHIFT: 1.2°", "SOUTH AMERICA": "ECO-INTEGRITY: 92%"}
+            st.info(inds.get(continent, "STATUS: ACTIVE"))
             
             if st.button("BACK TO SELECTION"):
                 st.session_state.state = "SELECT"
