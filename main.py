@@ -1,168 +1,191 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
+# 1. SYSTEM CONFIGURATION
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
+# 2. TACTICAL UI ENGINE (CSS)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@300;500&display=swap');
     
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
                     url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+        background-size: cover; background-attachment: fixed;
     }
 
-    .hero-box {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 60vh; gap: 10px;
-    }
-
-    .brand { font-family: 'Orbitron'; color: #38bdf8; letter-spacing: 15px; font-size: 1.2rem; }
-    .neon-title {
-        font-family: 'Orbitron'; font-size: 6.5rem; color: #fff; line-height: 0.9;
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
-    }
-
-    div.stButton > button {
-        background: rgba(56, 189, 248, 0.1) !important;
-        border: 2px solid #38bdf8 !important;
-        color: #fff !important;
-        padding: 20px 80px !important;
-        font-size: 1.8rem !important;
-        font-family: 'Orbitron', sans-serif !important;
-        letter-spacing: 5px !important;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3) !important;
-        transition: 0.3s !important;
-    }
-
-    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); }
-
-    .card {
+    /* GLASSMORPHISM MODULES */
+    .module-card {
         background: rgba(10, 25, 47, 0.85);
-        border: 2px solid #38bdf8;
+        border: 1px solid #38bdf8;
+        border-radius: 4px;
         padding: 20px;
-        text-align: center;
-        border-radius: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
     }
+    .module-card::before {
+        content: "SCANNING..."; position: absolute; top: 5px; right: 10px;
+        font-family: 'JetBrains Mono'; font-size: 0.6rem; color: #38bdf8; opacity: 0.5;
+    }
+
+    /* TEXT STYLING */
+    .neon-text { font-family: 'Orbitron'; color: #38bdf8; text-shadow: 0 0 10px #38bdf8; }
+    .label-text { font-family: 'JetBrains Mono'; color: #aaa; font-size: 0.8rem; text-transform: uppercase; }
+    .value-text { font-family: 'Orbitron'; color: #fff; font-size: 2rem; }
+
+    /* CUSTOM BUTTON */
+    div.stButton > button {
+        background: transparent !important; border: 1px solid #38bdf8 !important;
+        color: #38bdf8 !important; font-family: 'Orbitron' !important;
+        transition: 0.3s; width: 100%; border-radius: 0;
+    }
+    div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; box-shadow: 0 0 15px #38bdf8; }
+
+    /* TITLES */
+    .main-header { font-family: 'Orbitron'; font-size: 4rem; color: #fff; text-align: center; margin-bottom: 0; }
+    .sub-header { font-family: 'Orbitron'; font-size: 1.2rem; color: #38bdf8; text-align: center; letter-spacing: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
+# 3. DATA ARCHIVE (CACHE)
+@st.cache_data
+def load_climate_data():
+    df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
+    df['dt'] = pd.to_datetime(df['dt'])
+    df['year'] = df['dt'].dt.year
+    return df.dropna(subset=['AverageTemperature'])
+
+# 4. SESSION MANAGEMENT
 if 'state' not in st.session_state: st.session_state.state = "HOME"
 
+# --- PAGE 1: HOME ---
 if st.session_state.state == "HOME":
-    st.markdown("""
-        <div class="hero-box">
-            <div class="brand">CODETOOPIA</div>
-            <div class="neon-title">CLIMATE VAULT</div>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div style="height:25vh"></div>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">CODETOOPIA SYSTEM</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">CLIMATE VAULT</h1>', unsafe_allow_html=True)
+    st.markdown('<div style="height:10vh"></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 1, 1])
     with c2:
-        if st.button("INITIALIZE SYSTEM", use_container_width=True):
+        if st.button("INITIALIZE INTERFACE"):
             st.session_state.state = "SELECT"
             st.rerun()
 
+# --- PAGE 2: CONTINENT SELECTION ---
 elif st.session_state.state == "SELECT":
-    st.markdown('<h1 style="color:#fff; font-family:Orbitron; text-align:center; margin-bottom:40px;">SELECT CONTINENT</h1>', unsafe_allow_html=True)
-    
-    data = [
-        ("OCEANIA", 34, 38, "SECURE", "#00ff9d"), 
-        ("ASIA", 34, 32, "CRITICAL", "#ff4d4d"), 
-        ("EUROPE", 22, 30, "SECURE", "#00ff9d"),
-        ("AFRICA", 28, 35, "SECURE", "#00ff9d"), 
-        ("NORTH AMERICA", 34.2, 36, "SECURE", "#00ff9d"), 
-        ("SOUTH AMERICA", 31.8, 32, "SECURE", "#00ff9d")
+    st.markdown('<h2 class="neon-text" style="text-align:center">SECTOR SELECTION</h2>', unsafe_allow_html=True)
+    sectors = [
+        ("ASIA", "CRITICAL", "#ff4d4d", "Monsoon destabilization"),
+        ("EUROPE", "STABLE", "#00ff9d", "Industrial heat pulse"),
+        ("AFRICA", "WARNING", "#ffcc00", "Aridity expansion"),
+        ("OCEANIA", "STABLE", "#00ff9d", "Marine coupling"),
+        ("NORTH AMERICA", "STABLE", "#00ff9d", "Latitudinal shift"),
+        ("SOUTH AMERICA", "STABLE", "#00ff9d", "Eco-integrity loss")
     ]
-    
     cols = st.columns(3)
-    for i, (name, temp, threshold, status, color) in enumerate(data):
+    for i, (name, status, color, brief) in enumerate(sectors):
         with cols[i % 3]:
             st.markdown(f"""
-                <div class="card">
-                    <h3 style="font-family:Orbitron; color:#fff;">{name}</h3>
-                    <h1 style="font-family:Orbitron; color:#38bdf8; margin:5px 0;">{temp}°C</h1>
-                    <p style="font-family:Orbitron; color:#aaa; font-size:0.9rem;">THRESHOLD: {threshold}°C</p>
-                    <p style="font-family:Orbitron; color:{color}; font-weight:bold;">STATUS: {status}</p>
+                <div class="module-card">
+                    <p class="label-text">Sector</p>
+                    <h3 class="neon-text">{name}</h3>
+                    <p class="label-text">Status: <span style="color:{color}">{status}</span></p>
+                    <p style="color:#aaa; font-size:0.8rem;">{brief}</p>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button(f"ENTER {name}", key=name, use_container_width=True):
+            if st.button(f"ACCESS {name}"):
                 st.session_state.selected_continent = name
                 st.session_state.state = "VAULT"
                 st.rerun()
 
+# --- PAGE 3: THE VAULT (THE OVERHAUL) ---
 elif st.session_state.state == "VAULT":
-    @st.cache_data
-    def load_vault_data():
-        df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
-        df['dt'] = pd.to_datetime(df['dt'])
-        df['year'] = df['dt'].dt.year
-        return df
-
-    df = load_vault_data()
+    df = load_climate_data()
     continent = st.session_state.selected_continent
     
+    # CONTINENT-SPECIFIC LOGIC (Chặn nước theo vùng)
     mapping = {
-        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Philippines", "South Korea", "Malaysia", "Singapore", "Pakistan", "Bangladesh"],
-        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Netherlands", "Sweden", "Poland", "Norway", "Switzerland"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria", "Morocco", "Ethiopia", "Ghana", "Tanzania"],
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Philippines", "Indonesia"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Norway"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria", "Morocco"],
         "OCEANIA": ["Australia", "New Zealand", "Fiji", "Papua New Guinea"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico", "Cuba", "Jamaica"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru", "Uruguay", "Venezuela"]
+        "NORTH AMERICA": ["United States", "Canada", "Mexico", "Cuba"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru"]
     }
-    target_countries = mapping.get(continent, df['Country'].unique().tolist())
-    default_nations = [target_countries[0]]
+    
+    nation_options = mapping.get(continent, ["Global"])
+    min_data_year, max_data_year = int(df['year'].min()), int(df['year'].max())
 
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
+    # TACTICAL HEADER (Bộ điều khiển ngang - Thay thế Sidebar để dễ hiểu)
+    st.markdown(f'<h2 class="neon-text">/COMMAND_CENTER/{continent}_SECTOR</h2>', unsafe_allow_html=True)
+    
+    ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 2, 1])
+    with ctrl_col1:
+        sel_nations = st.multiselect("📡 SELECT NODES (NATIONS)", nation_options, default=[nation_options[0]])
+    with ctrl_col2:
+        # THANH KÉO NĂM: Mặc định 10 năm cuối nhưng cho phép kéo full
+        y_range = st.slider("⏳ TEMPORAL RANGE", min_data_year, max_data_year, (max_data_year-10, max_data_year))
+    with ctrl_col3:
+        mode = st.selectbox("📊 ANALYSIS MODULE", ["THERMAL TREND", "REGIONAL COMPARISON", "VOLATILITY BOX"])
 
-    col1, col2, col3 = st.columns([1, 3, 1])
+    # MAIN INTERFACE
+    m1, m2 = st.columns([3, 1])
+    
+    filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
 
-    with col1:
-        st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=default_nations)
-        min_y, max_y = int(df['year'].min()), int(df['year'].max())
-        y_range = st.slider("YEAR RANGE", min_y, max_y, (1950, max_y))
+    with m1:
+        st.markdown('<div class="module-card">', unsafe_allow_html=True)
+        if mode == "THERMAL TREND":
+            fig = px.area(filtered_df, x='year', y='AverageTemperature', color='Country', 
+                          template="plotly_dark", line_shape="spline")
+            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_family="JetBrains Mono")
+            st.plotly_chart(fig, use_container_width=True)
+            st.info("💡 OBSERVATION: Area chart visualizes the cumulative heat intensity across selected nodes.")
         
-        st.markdown('<div class="card"><h3>CLIMATE DIAGNOSIS</h3></div>', unsafe_allow_html=True)
-        if sel_nations:
-            for n in sel_nations:
-                subset = df[df['Country'] == n]
-                baseline = subset[subset['year'].between(1850, 1900)]['AverageTemperature'].mean()
-                curr = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
-                delta = curr - baseline
-                msg = "Stable trend detected" if abs(delta) < 0.5 else f"Significant warming: {delta:+.1f}°C"
-                st.markdown(f"**{n}:** {msg}", unsafe_allow_html=True)
+        elif mode == "REGIONAL COMPARISON":
+            avg_data = filtered_df.groupby('Country')['AverageTemperature'].mean().reset_index()
+            fig = px.bar(avg_data, x='Country', y='AverageTemperature', color='AverageTemperature',
+                         color_continuous_scale="Reds", template="plotly_dark")
+            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig, use_container_width=True)
+            st.info("💡 OBSERVATION: Direct comparison of thermal baselines between nations.")
 
-    with col2:
-        st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-        chart_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
-        fig = px.line(chart_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", hovermode="x unified")
-        st.plotly_chart(fig, use_container_width=True)
+        else:
+            fig = px.box(filtered_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig, use_container_width=True)
+            st.info("💡 OBSERVATION: Box plot reveals climatic instability. Wide boxes indicate extreme weather fluctuations.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col3:
-        st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
-        if sel_nations:
-            avg_t = df[df['Country'].isin(sel_nations)]['AverageTemperature'].mean()
-            st.metric("THERMAL BASELINE", f"{avg_t:.1f}°C")
-            st.metric("MONITORING DENSITY", f"{len(sel_nations)} Nodes")
-            st.metric("VULNERABILITY", f"{min(len(sel_nations)*15, 99)}%")
-            
-            st.markdown('<div class="card"><h3>SECTOR BRIEF</h3></div>', unsafe_allow_html=True)
-            briefs = {
-                "ASIA": "Monsoon stability remains critical.",
-                "EUROPE": "Industrial heat pulse detected.",
-                "AFRICA": "Aridity levels exceeding norms.",
-                "OCEANIA": "Marine resilience assessment active.",
-                "NORTH AMERICA": "Latitudinal thermal shift observed.",
-                "SOUTH AMERICA": "Ecosystem integrity warning."
-            }
-            st.info(briefs.get(continent, "Monitoring active."))
+    with m2:
+        # SITUATION METRICS
+        st.markdown('<div class="module-card">', unsafe_allow_html=True)
+        st.markdown('<p class="label-text">Mean Sector Temp</p>', unsafe_allow_html=True)
+        if not filtered_df.empty:
+            st.markdown(f'<p class="value-text">{filtered_df["AverageTemperature"].mean():.2f}°C</p>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<p class="value-text">N/A</p>', unsafe_allow_html=True)
+        
+        st.divider()
+        st.markdown('<p class="label-text">Tactical Brief</p>', unsafe_allow_html=True)
+        
+        # DIFFERENT HIGHLIGHTS PER CONTINENT
+        briefs = {
+            "ASIA": "⚠️ HIGH MONSOON RISK: Thermal anomalies detected in SE Asian nodes.",
+            "EUROPE": "❄️ GLACIAL RECESSION: Northern European nodes showing abnormal warming.",
+            "AFRICA": "🔥 DESERTIFICATION: Rapid baseline increase in Saharan-fringe nodes.",
+            "OCEANIA": "🌊 MARINE HEATWAVE: Sea-surface coupling affecting coastal nodes.",
+            "NORTH AMERICA": "🌪️ JET STREAM SHIFT: Extreme volatility in temperate nodes.",
+            "SOUTH AMERICA": "🌿 HUMIDITY DROP: Amazonian nodes reporting record dry cycles."
+        }
+        st.write(briefs.get(continent, "Monitoring active..."))
+        
+        if st.button("TERMINATE SESSION"):
+            st.session_state.state = "SELECT"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    if st.button("BACK TO SELECTION"):
-        st.session_state.state = "SELECT"
-        st.rerun()
+    st.markdown('<p style="text-align:center; color:#555; font-family:JetBrains Mono; font-size:0.7rem;">SYSTEM_VERSION_3.0_STABLE // NO_UNAUTHORIZED_ACCESS</p>', unsafe_allow_html=True)
