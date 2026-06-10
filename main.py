@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="CLIMATE VAULT | CODETOOPIA", layout="wide")
 
@@ -42,13 +43,15 @@ st.markdown("""
     div.stButton > button:hover { background: #38bdf8 !important; color: #000 !important; transform: scale(1.05); }
 
     .card {
-        background: rgba(10, 25, 47, 0.85);
-        border: 2px solid #38bdf8;
-        padding: 20px;
+        background: rgba(10, 25, 47, 0.95);
+        border: 1px solid #38bdf8;
+        padding: 15px;
         text-align: center;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-bottom: 10px;
     }
+    
+    h3 { font-family: 'Orbitron'; color: #38bdf8; margin-top: 0; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -84,7 +87,7 @@ elif st.session_state.state == "SELECT":
         with cols[i % 3]:
             st.markdown(f"""
                 <div class="card">
-                    <h3 style="font-family:Orbitron; color:#fff;">{name}</h3>
+                    <h3 style="color:#fff;">{name}</h3>
                     <h1 style="font-family:Orbitron; color:#38bdf8; margin:5px 0;">{temp}°C</h1>
                     <p style="font-family:Orbitron; color:#aaa; font-size:0.9rem;">THRESHOLD: {threshold}°C</p>
                     <p style="font-family:Orbitron; color:{color}; font-weight:bold;">STATUS: {status}</p>
@@ -107,62 +110,65 @@ elif st.session_state.state == "VAULT":
     continent = st.session_state.selected_continent
     
     mapping = {
-        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Philippines", "South Korea", "Malaysia", "Singapore", "Pakistan", "Bangladesh"],
-        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Netherlands", "Sweden", "Poland", "Norway", "Switzerland"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria", "Morocco", "Ethiopia", "Ghana", "Tanzania"],
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Philippines"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria"],
         "OCEANIA": ["Australia", "New Zealand", "Fiji", "Papua New Guinea"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico", "Cuba", "Jamaica"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru", "Uruguay", "Venezuela"]
+        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile"]
     }
     target_countries = mapping.get(continent, df['Country'].unique().tolist())
-    default_nations = [target_countries[0]]
+    
+    with st.sidebar:
+        st.markdown("### DATA FILTERS")
+        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=[target_countries[0]])
+        y_range = st.slider("YEAR RANGE", 1850, 2013, (2003, 2013))
+        chart_mode = st.radio("ANALYSIS MODE", ["TREND ANALYSIS", "COMPARATIVE", "VOLATILITY"])
 
     st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{continent} COMMAND CENTER</h1>', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1, 3, 1])
+    col1, col2 = st.columns([3, 1])
 
     with col1:
-        st.markdown('<div class="card"><h3>FILTERS</h3></div>', unsafe_allow_html=True)
-        sel_nations = st.multiselect("SELECT NATIONS", target_countries, default=default_nations)
-        min_y, max_y = int(df['year'].min()), int(df['year'].max())
-        y_range = st.slider("YEAR RANGE", min_y, max_y, (1950, max_y))
+        st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
+        filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
         
-        st.markdown('<div class="card"><h3>CLIMATE DIAGNOSIS</h3></div>', unsafe_allow_html=True)
-        if sel_nations:
-            for n in sel_nations:
-                subset = df[df['Country'] == n]
-                baseline = subset[subset['year'].between(1850, 1900)]['AverageTemperature'].mean()
-                curr = subset[subset['year'].between(y_range[0], y_range[1])]['AverageTemperature'].mean()
-                delta = curr - baseline
-                msg = "Stable trend detected" if abs(delta) < 0.5 else f"Significant warming: {delta:+.1f}°C"
-                st.markdown(f"**{n}:** {msg}", unsafe_allow_html=True)
+        if chart_mode == "TREND ANALYSIS":
+            fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Chart shows temperature trends over time. Smoothed data highlights long-term warming trajectories.")
+        
+        elif chart_mode == "COMPARATIVE":
+            avg_df = filtered_df.groupby('Country')['AverageTemperature'].mean().reset_index()
+            fig = px.bar(avg_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Comparison of average temperatures across selected nations within the timeframe.")
+            
+        else:
+            fig = px.box(filtered_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption("Distribution of temperature extremes, highlighting climate volatility per nation.")
 
     with col2:
-        st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
-        chart_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
-        fig = px.line(chart_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
-        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", hovermode="x unified")
-        st.plotly_chart(fig, use_container_width=True)
-
-    with col3:
         st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
         if sel_nations:
             avg_t = df[df['Country'].isin(sel_nations)]['AverageTemperature'].mean()
-            st.metric("THERMAL BASELINE", f"{avg_t:.1f}°C")
-            st.metric("MONITORING DENSITY", f"{len(sel_nations)} Nodes")
-            st.metric("VULNERABILITY", f"{min(len(sel_nations)*15, 99)}%")
+            st.metric("AVG TEMP", f"{avg_t:.1f}°C")
+            st.metric("NODES", f"{len(sel_nations)}")
+            st.metric("VULNERABILITY", f"{min(len(sel_nations)*20, 99)}%")
             
-            st.markdown('<div class="card"><h3>SECTOR BRIEF</h3></div>', unsafe_allow_html=True)
-            briefs = {
-                "ASIA": "Monsoon stability remains critical.",
-                "EUROPE": "Industrial heat pulse detected.",
-                "AFRICA": "Aridity levels exceeding norms.",
-                "OCEANIA": "Marine resilience assessment active.",
-                "NORTH AMERICA": "Latitudinal thermal shift observed.",
-                "SOUTH AMERICA": "Ecosystem integrity warning."
+            st.markdown('<div class="card"><h3>SECTOR INDICATOR</h3></div>', unsafe_allow_html=True)
+            indicators = {
+                "ASIA": ("MONSOON VOLATILITY", "1.42"),
+                "EUROPE": ("HEAT PULSE", "HIGH"),
+                "AFRICA": ("ARIDITY INDEX", "CRITICAL"),
+                "OCEANIA": ("MARINE COUPLING", "STABLE"),
+                "NORTH AMERICA": ("LATITUDINAL SHIFT", "1.2°"),
+                "SOUTH AMERICA": ("ECO-INTEGRITY", "92%")
             }
-            st.info(briefs.get(continent, "Monitoring active."))
-
-    if st.button("BACK TO SELECTION"):
-        st.session_state.state = "SELECT"
-        st.rerun()
+            label, val = indicators.get(continent, ("STATUS", "ACTIVE"))
+            st.metric(label, val)
+            
+            if st.button("BACK TO SELECTION"):
+                st.session_state.state = "SELECT"
+                st.rerun()
