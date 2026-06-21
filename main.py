@@ -55,11 +55,11 @@ st.markdown("""
 if 'state' not in st.session_state: st.session_state.state = "HOME"
 
 @st.cache_data
-def load_data():
+def load_vault_data():
     df = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
     df['dt'] = pd.to_datetime(df['dt'])
     df['year'] = df['dt'].dt.year
-    return df.dropna(subset=['AverageTemperature'])
+    return df
 
 if st.session_state.state == "HOME":
     st.markdown("""
@@ -103,50 +103,63 @@ elif st.session_state.state == "SELECT":
                 st.rerun()
 
 elif st.session_state.state == "VAULT":
-    df = load_data()
-    min_year, max_year = int(df['year'].min()), int(df['year'].max())
+    df = load_vault_data()
+    continent = st.session_state.selected_continent
     
     mapping = {
-        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan"],
-        "EUROPE": ["France", "Germany", "Italy", "United Kingdom"],
-        "AFRICA": ["Egypt", "Nigeria", "South Africa"],
-        "OCEANIA": ["Australia", "New Zealand", "Fiji"],
-        "NORTH AMERICA": ["United States", "Canada", "Mexico"],
-        "SOUTH AMERICA": ["Brazil", "Argentina", "Chile"]
+        "ASIA": ["Vietnam", "Thailand", "India", "China", "Japan", "Indonesia", "Philippines", "South Korea", "Malaysia", "Singapore", "Pakistan", "Bangladesh"],
+        "EUROPE": ["France", "Germany", "Italy", "Spain", "United Kingdom", "Russia", "Netherlands", "Sweden", "Poland", "Norway", "Switzerland"],
+        "AFRICA": ["Egypt", "Nigeria", "South Africa", "Kenya", "Algeria", "Morocco", "Ethiopia", "Ghana", "Tanzania"],
+        "OCEANIA": ["Australia", "New Zealand", "Fiji", "Papua New Guinea"],
+        "NORTH AMERICA": ["United States", "Canada", "Mexico", "Cuba", "Jamaica"],
+        "SOUTH AMERICA": ["Brazil", "Argentina", "Colombia", "Chile", "Peru", "Uruguay", "Venezuela"]
     }
     
-    options = mapping.get(st.session_state.selected_continent, df['Country'].unique())
+    target_countries = mapping.get(continent, df['Country'].unique().tolist())
     
-    with st.sidebar:
-        st.header("VAULT SETTINGS")
-        sel_nations = st.multiselect("SELECT NATIONS", options, default=[options[0]])
-        y_range = st.slider("YEAR RANGE", min_year, max_year, (max_year-10, max_year))
-        mode = st.radio("ANALYSIS MODE", ["TREND", "COMPARATIVE", "VOLATILITY"])
+    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center; letter-spacing:10px;">{continent}_COMMAND_CENTER</h1>', unsafe_allow_html=True)
 
-    st.markdown(f'<h1 style="color:#38bdf8; font-family:Orbitron; text-align:center;">{st.session_state.selected_continent} VAULT ACTIVE</h1>', unsafe_allow_html=True)
+    c_ctrl1, c_ctrl2, c_ctrl3 = st.columns([2, 2, 1])
+    with c_ctrl1:
+        sel_nations = st.multiselect("📡 SELECT NODES", target_countries, default=[target_countries[0]])
+    with c_ctrl2:
+        min_y, max_y = int(df['year'].min()), int(df['year'].max())
+        y_range = st.slider("⏳ TEMPORAL RANGE", min_y, max_y, (max_y-10, max_y))
+    with c_ctrl3:
+        mode = st.radio("📊 ANALYSIS MODE", ["TREND", "COMPARISON", "VOLATILITY"], horizontal=True)
+
+    col_main, col_metrics = st.columns([3, 1])
     
-    col1, col2 = st.columns([3, 1])
-    filtered = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
+    filtered_df = df[(df['Country'].isin(sel_nations)) & (df['year'].between(*y_range))]
 
-    with col1:
-        st.markdown('<div class="card"><h3>MAIN VISUALIZER</h3></div>', unsafe_allow_html=True)
+    with col_main:
+        st.markdown('<div class="card"><h3>TACTICAL VISUALIZER</h3></div>', unsafe_allow_html=True)
         if mode == "TREND":
-            fig = px.line(filtered, x='year', y='AverageTemperature', color='Country', template="plotly_dark")
-        elif mode == "COMPARATIVE":
-            fig = px.bar(filtered.groupby('Country')['AverageTemperature'].mean().reset_index(), x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            fig = px.line(filtered_df, x='year', y='AverageTemperature', color='Country', template="plotly_dark", line_shape="spline")
+        elif mode == "COMPARISON":
+            fig = px.bar(filtered_df.groupby('Country')['AverageTemperature'].mean().reset_index(), x='Country', y='AverageTemperature', color='AverageTemperature', color_continuous_scale="Reds", template="plotly_dark")
         else:
-            fig = px.box(filtered, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+            fig = px.box(filtered_df, x='Country', y='AverageTemperature', color='Country', template="plotly_dark")
+        
+        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         st.plotly_chart(fig, use_container_width=True)
 
-    with col2:
-        st.markdown('<div class="card"><h3>SITUATION METRICS</h3></div>', unsafe_allow_html=True)
-        st.metric("AVG TEMP", f"{filtered['AverageTemperature'].mean():.1f}°C")
+    with col_metrics:
+        st.markdown('<div class="card"><h3>SECTOR INDICATORS</h3></div>', unsafe_allow_html=True)
+        avg_temp = filtered_df['AverageTemperature'].mean() if not filtered_df.empty else 0
+        st.metric("AVG TEMP", f"{avg_temp:.1f}°C")
         st.metric("NODES", len(sel_nations))
         
-        st.markdown('<div class="card"><h3>SECTOR INDICATOR</h3></div>', unsafe_allow_html=True)
-        inds = {"ASIA": "MONSOON VOLATILITY: 1.42", "EUROPE": "HEAT PULSE: HIGH", "AFRICA": "ARIDITY INDEX: CRITICAL", 
-                "OCEANIA": "MARINE COUPLING: STABLE", "NORTH AMERICA": "LATITUDINAL SHIFT: 1.2°", "SOUTH AMERICA": "ECO-INTEGRITY: 92%"}
-        st.info(inds.get(st.session_state.selected_continent, "STATUS: ACTIVE"))
+        st.markdown('<div class="card"><h3>INTELLIGENCE BRIEF</h3></div>', unsafe_allow_html=True)
+        briefs = {
+            "ASIA": "⚠️ MONSOON VOLATILITY DETECTED",
+            "EUROPE": "❄️ INDUSTRIAL HEAT PULSE ACTIVE",
+            "AFRICA": "🔥 ARIDITY LEVELS AT CRITICAL",
+            "OCEANIA": "🌊 MARINE RESILIENCE STABLE",
+            "NORTH AMERICA": "🌪️ JET STREAM SHIFT OBSERVED",
+            "SOUTH AMERICA": "🌿 ECO-SYSTEM INTEGRITY WARN"
+        }
+        st.info(briefs.get(continent, "Status: Monitoring Active"))
         
         if st.button("BACK TO SELECTION"):
             st.session_state.state = "SELECT"
